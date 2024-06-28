@@ -1,4 +1,4 @@
-package com.github.wukap.automatedAccountingSystem;
+package com.github.wukap.automatedAccountingSystem.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

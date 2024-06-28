@@ -1,5 +1,6 @@
-package com.github.wukap.automatedAccountingSystem;
+package com.github.wukap.automatedAccountingSystem.Driver;
 
+import com.github.wukap.automatedAccountingSystem.model.ESValue;
 import lombok.Getter;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
