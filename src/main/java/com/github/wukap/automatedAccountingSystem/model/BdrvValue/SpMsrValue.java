@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
 @Value
-public class SpMsrValue implements BdrvData {
+public class SpMsrValue implements BdrvValue {
     @NotNull
     int pFfcId;
     @NotNull

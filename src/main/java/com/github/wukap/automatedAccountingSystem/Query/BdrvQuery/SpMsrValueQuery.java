@@ -3,10 +3,9 @@ package com.github.wukap.automatedAccountingSystem.Query.BdrvQuery;
 import com.github.wukap.automatedAccountingSystem.model.BdrvValue.SpMsrValue;
 import lombok.Getter;
 
+@Getter
 public class SpMsrValueQuery extends BdrvQuery {
-    @Getter
     private final String Query;
-    @Getter
     private SpMsrValue data;
 
     public SpMsrValueQuery(SpMsrValue data) {

@@ -1,4 +1,4 @@
 package com.github.wukap.automatedAccountingSystem.model.BdrvValue;
 
-public interface BdrvData {
+public interface BdrvValue {
 }

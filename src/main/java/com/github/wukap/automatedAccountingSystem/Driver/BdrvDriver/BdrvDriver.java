@@ -2,9 +2,10 @@ package com.github.wukap.automatedAccountingSystem.Driver.BdrvDriver;
 
 import com.github.wukap.automatedAccountingSystem.Driver.ESDriver;
 import com.github.wukap.automatedAccountingSystem.Query.BdrvQuery.BdrvQuery;
-import com.github.wukap.automatedAccountingSystem.Query.BdrvQuery.SpMsrValueQuery;
+import com.github.wukap.automatedAccountingSystem.Query.BdrvQuery.SpMsnStatusSet;
+import com.github.wukap.automatedAccountingSystem.model.BdrvValue.BdrvValue;
+import com.github.wukap.automatedAccountingSystem.model.BdrvValue.SpMsnStatusValue;
 import com.github.wukap.automatedAccountingSystem.model.ESValue;
-import com.github.wukap.automatedAccountingSystem.model.BdrvValue.SpMsrValue;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +19,12 @@ import java.sql.Statement;
 
 @Slf4j
 @Service
-public class BdrvOutputDriver extends ESDriver<SpMsrValue> {
+public class BdrvDriver extends ESDriver<BdrvValue> {
     @Autowired
     @Qualifier("hikariSqlDataSource")
     private HikariDataSource dataSource;
 
-    public BdrvOutputDriver() {
+    public BdrvDriver() {
     }
 
     @Override
@@ -31,10 +32,13 @@ public class BdrvOutputDriver extends ESDriver<SpMsrValue> {
         throw new UnsupportedOperationException();
     }
 
+
     @Override
-    protected void write_(String tagname, SpMsrValue data) {
+    protected void write_(String tagname, BdrvValue data) {
         //var writeonlyQuery = writeOnlyQueries.get(0).stream().findAny().orElse(null);
-        writeWriteOnly(new SpMsrValueQuery(data));
+        //writeWriteOnly(new SpMsrValueQuery(data));
+        //writeWriteOnly(new SpTransactionQuery((SpTransactionValue) data));
+        writeWriteOnly(new SpMsnStatusSet((SpMsnStatusValue) data));
     }
 
     @SneakyThrows
