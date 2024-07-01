@@ -1,4 +1,4 @@
-package com.github.wukap.automatedAccountingSystem.model.BdrvValue;
+package com.github.wukap.automatedAccountingSystem.model.bdrvValue;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;

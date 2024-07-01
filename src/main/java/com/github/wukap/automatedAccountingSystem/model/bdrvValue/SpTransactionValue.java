@@ -1,16 +1,16 @@
-package com.github.wukap.automatedAccountingSystem.model.BdrvValue;
+package com.github.wukap.automatedAccountingSystem.model.bdrvValue;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
 @Value
-public class SpMsrValue implements BdrvValue {
+public class SpTransactionValue implements BdrvValue {
     @NotNull
     int pFfcId;
     @NotNull
-    int pMsrValue;
+    int pInfoType;
     @NotNull
-    int pMsdId;
+    long pTrnInfo;
     @NotNull
     String pMsrTime;
 }

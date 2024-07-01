@@ -1,6 +1,6 @@
-package com.github.wukap.automatedAccountingSystem.Query.BdrvQuery;
+package com.github.wukap.automatedAccountingSystem.query.bdrvQuery;
 
-import com.github.wukap.automatedAccountingSystem.model.BdrvValue.SpMsrValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
 import lombok.Getter;
 
 @Getter
