@@ -1,6 +1,6 @@
-package com.github.wukap.automatedAccountingSystem.Query.BdrvQuery;
+package com.github.wukap.automatedAccountingSystem.query.bdrvQuery;
 
-import com.github.wukap.automatedAccountingSystem.model.BdrvValue.BdrvValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
 
 public abstract class BdrvQuery {
 

@@ -1,10 +1,10 @@
-package com.github.wukap.automatedAccountingSystem.Driver.BdrvDriver;
+package com.github.wukap.automatedAccountingSystem.driver.bdrvDriver;
 
-import com.github.wukap.automatedAccountingSystem.Driver.ESDriver;
-import com.github.wukap.automatedAccountingSystem.Query.BdrvQuery.BdrvQuery;
-import com.github.wukap.automatedAccountingSystem.Query.BdrvQuery.SpMsnStatusSet;
-import com.github.wukap.automatedAccountingSystem.model.BdrvValue.BdrvValue;
-import com.github.wukap.automatedAccountingSystem.model.BdrvValue.SpMsnStatusValue;
+import com.github.wukap.automatedAccountingSystem.driver.ESDriver;
+import com.github.wukap.automatedAccountingSystem.query.bdrvQuery.BdrvQuery;
+import com.github.wukap.automatedAccountingSystem.query.bdrvQuery.SpMsnStatusSet;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsnStatusValue;
 import com.github.wukap.automatedAccountingSystem.model.ESValue;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.SneakyThrows;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -21,8 +22,8 @@ import java.sql.Statement;
 @Service
 public class BdrvDriver extends ESDriver<BdrvValue> {
     @Autowired
-    @Qualifier("hikariSqlDataSource")
-    private HikariDataSource dataSource;
+    @Qualifier("bdrvDataSource")
+    private DataSource dataSource;
 
     public BdrvDriver() {
     }
