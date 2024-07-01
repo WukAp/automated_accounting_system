@@ -1,11 +1,11 @@
 package com.github.wukap.automatedAccountingSystem.driver.bdrvDriver;
 
 import com.github.wukap.automatedAccountingSystem.driver.ESDriver;
-import com.github.wukap.automatedAccountingSystem.query.bdrvQuery.BdrvQuery;
-import com.github.wukap.automatedAccountingSystem.query.bdrvQuery.SpMsnStatusSet;
-import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
-import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsnStatusValue;
 import com.github.wukap.automatedAccountingSystem.model.ESValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
+import com.github.wukap.automatedAccountingSystem.query.bdrvQuery.BdrvQuery;
+import com.github.wukap.automatedAccountingSystem.query.bdrvQuery.SpMsrValueQuery;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -13,21 +13,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
 @Service
 public class BdrvDriver extends ESDriver<BdrvValue> {
     @Autowired
     @Qualifier("bdrvDataSource")
-    private DataSource dataSource;
-
+    private HikariDataSource dataSource;
+    private ScheduledExecutorService executorService;
     public BdrvDriver() {
     }
+    protected void start_() {
+        if(isStarted())return;
+        setIsStarted(true);
+        if(executorService!=null)executorService.shutdown();
 
+    }
+    public void stop() {
+        setIsStarted(false);
+        executorService.shutdown();
+        dataSource.close();
+    }
     @Override
     protected ESValue read_(String tagname) {
         throw new UnsupportedOperationException();
@@ -39,7 +49,7 @@ public class BdrvDriver extends ESDriver<BdrvValue> {
         //var writeonlyQuery = writeOnlyQueries.get(0).stream().findAny().orElse(null);
         //writeWriteOnly(new SpMsrValueQuery(data));
         //writeWriteOnly(new SpTransactionQuery((SpTransactionValue) data));
-        writeWriteOnly(new SpMsnStatusSet((SpMsnStatusValue) data));
+        writeWriteOnly(new SpMsrValueQuery((SpMsrValue) data));
     }
 
     @SneakyThrows

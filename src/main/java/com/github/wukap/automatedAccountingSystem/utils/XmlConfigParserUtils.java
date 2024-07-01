@@ -1,4 +1,4 @@
-package com.github.wukap.automatedAccountingSystem.parserUtils;
+package com.github.wukap.automatedAccountingSystem.utils;
 
 import com.github.wukap.automatedAccountingSystem.model.config.ESConfig;
 
