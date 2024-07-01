@@ -1,4 +1,4 @@
-package com.github.wukap.automatedAccountingSystem.Driver;
+package com.github.wukap.automatedAccountingSystem.driver;
 
 import com.github.wukap.automatedAccountingSystem.model.ESValue;
 import lombok.Getter;
