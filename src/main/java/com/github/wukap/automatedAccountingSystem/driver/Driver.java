@@ -1,7 +1,6 @@
 package com.github.wukap.automatedAccountingSystem.driver;
 
 import com.github.wukap.automatedAccountingSystem.common.CustomThreadFactory;
-import com.github.wukap.automatedAccountingSystem.model.ESValue;
 import lombok.Getter;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Slf4j
-public abstract class Driver<T> {
+public abstract class Driver<R, V> {
 
     public static final String DRIVER_TAG = "driver";
 
@@ -26,18 +25,12 @@ public abstract class Driver<T> {
         this.isStarted = isStarted;
     }
 
-    protected abstract ESValue read_(String tagname);
+    protected abstract R read_(String tagname);
 
-    protected abstract void write_(String tagname, T value);
+    protected abstract void write_(String tagname, V value);
 
-    public ESValue read(String tagname) {
 
-        ESValue value = read_(tagname);
-
-        return value;
-    }
-
-    public void write(String tagname, T value) {
+    public void write(String tagname, V value) {
 
         try {
             write_(tagname, value);

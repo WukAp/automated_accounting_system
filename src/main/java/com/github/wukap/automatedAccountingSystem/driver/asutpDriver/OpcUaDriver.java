@@ -1,15 +1,18 @@
 package com.github.wukap.automatedAccountingSystem.driver.asutpDriver;
 
 import com.github.wukap.automatedAccountingSystem.driver.Driver;
-import com.github.wukap.automatedAccountingSystem.model.ESValue;
+import com.github.wukap.automatedAccountingSystem.model.OpcValue;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.opcfoundation.ua.builtintypes.DataValue;
+import org.opcfoundation.ua.builtintypes.DateTime;
 import org.opcfoundation.ua.builtintypes.NodeId;
+import org.opcfoundation.ua.common.ServiceResultException;
 import org.opcfoundation.ua.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +23,10 @@ import static java.time.Instant.now;
  *
  * @author Yuriy Golubev
  */
+@Getter
 @Slf4j
 @Component
-public class OpcUaDriver extends Driver {
-    @Getter
+public class OpcUaDriver extends Driver<OpcValue, Object> {
     private final ConnectionFactoryImpl connectionFactory;
 
 
@@ -32,39 +35,29 @@ public class OpcUaDriver extends Driver {
         this.connectionFactory = new ConnectionFactoryImpl(connectionInfo);
     }
 
-    public List<ESValue> readNodes(String[] NodesToRead) {
-        List<ESValue> tags = new ArrayList<>();
+    public List<OpcValue> readNodes(String[] NodesToRead) {
+        List<OpcValue> tags = new ArrayList<>();
         for (int i = 0; i < NodesToRead.length; i++) {
             tags.add(read_(NodesToRead[i]));
         }
         return tags;
     }
 
-
-    public ESValue read_(String tagName) {
+    @Override
+    public OpcValue read_(String tagName) {
         try {
             String opcUaTagName = getConnectionFactory().getActiveConnectionInfo().getServerPrefix() + tagName;
-            var rv = new ReadValueId();
-            rv.setAttributeId(Attributes.Value);
-            rv.setNodeId(NodeId.get(IdType.String, getConnectionFactory().getActiveConnectionInfo().getNamespace(), opcUaTagName));
-            ReadRequest req = new ReadRequest(null, 0.0, TimestampsToReturn.Both, List.of(rv).toArray(new ReadValueId[0]));
-            ReadResponse res = connectionFactory.getActiveConnection().Read(req);
-            DataValue result = res.getResults()[0];
-            Class<?> valueType = result.getValue().getCompositeClass();
-            ESValue newValue;
+            var readValue = new ReadValueId(NodeId.get(IdType.String, getConnectionFactory().getActiveConnectionInfo().getNamespace(), opcUaTagName), Attributes.Value, null, null);
+            ReadRequest req = new ReadRequest(null, 0.0, TimestampsToReturn.Both, List.of(readValue).toArray(new ReadValueId[0]));
+            DataValue res = connectionFactory.getActiveConnection().Read(req).getResults()[0];
 
-            ESValue.Quality quality = result.getStatusCode().isGood() ? ESValue.Quality.GOOD : ESValue.Quality.BAD;
-
-            if (valueType != null && valueType.isAssignableFrom(Boolean.class)) {
-                boolean boolValue = (boolean) result.getValue().getValue();
-                newValue = new ESValue(now(), boolValue ? "1.0" : "0.0", ESValue.Type.DOUBLE, quality);
-            } else {
-                newValue = new ESValue( now(), result.getValue().toString(), ESValue.Type.DOUBLE, quality);
-
-            }
-            return newValue;
-
-        } catch (Exception e) {
+            Double value = res.getValue().doubleValue();
+            Instant sourceTime = Instant.ofEpochMilli(res.getSourceTimestamp().getMilliSeconds());
+            OpcValue.Quality quality = res.getStatusCode().isGood() ? OpcValue.Quality.GOOD : OpcValue.Quality.BAD;
+            return new OpcValue(sourceTime, value, quality);
+        } catch (ServiceResultException e) {
+            log.error("Can't read from OPC UA server", e);
+        } finally {
             connectionFactory.closeConnection();
         }
         return null;

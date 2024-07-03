@@ -1,7 +1,6 @@
 package com.github.wukap.automatedAccountingSystem.driver.bdrvDriver;
 
 import com.github.wukap.automatedAccountingSystem.driver.Driver;
-import com.github.wukap.automatedAccountingSystem.model.ESValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
 import com.github.wukap.automatedAccountingSystem.query.bdrvQuery.BdrvQuery;
@@ -20,7 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
 @Service
-public class BdrvDriver extends Driver<BdrvValue> {
+public class BdrvDriver extends Driver<Object, BdrvValue> {
     @Autowired
     @Qualifier("bdrvDataSource")
     private HikariDataSource dataSource;
@@ -38,7 +37,7 @@ public class BdrvDriver extends Driver<BdrvValue> {
         dataSource.close();
     }
     @Override
-    protected ESValue read_(String tagname) {
+    protected Object read_(String tagname) {
         throw new UnsupportedOperationException();
     }
 
