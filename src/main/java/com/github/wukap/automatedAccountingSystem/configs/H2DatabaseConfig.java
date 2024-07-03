@@ -14,16 +14,16 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 @EnableJpaRepositories(
-        basePackages = "com.github.wukap.automatedAccountingSystem.ringBufferDatabase",
+        basePackages = "com.github.wukap.automatedAccountingSystem",
         entityManagerFactoryRef = "h2EntityManager",
         transactionManagerRef = "h2TransactionManager"
 )
+
 @Configuration
-public class H2Config {
+public class H2DatabaseConfig {
 
     @Autowired
     private EntityManagerFactoryBuilder entityManagerFactoryBuilder;
@@ -56,7 +56,7 @@ public class H2Config {
 
         LocalContainerEntityManagerFactoryBean em = entityManagerFactoryBuilder
                 .dataSource(h2DataSource())
-                .packages("com.github.wukap.automatedAccountingSystem.ringBufferDatabase")
+                .packages("com.github.wukap.automatedAccountingSystem")
                 .persistenceUnit("h2")
                 .properties(properties)
                 .build();

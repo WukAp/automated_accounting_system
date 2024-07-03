@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+    <groupId>org.opcfoundation.ua</groupId>
+    <artifactId>opc-ua-stack</artifactId>
+    <versioning>
+        <versions>
+            <version>1.4.0-SNAPSHOT</version>
+        </versions>
+        <lastUpdated>20181218201604</lastUpdated>
+    </versioning>
+</metadata>

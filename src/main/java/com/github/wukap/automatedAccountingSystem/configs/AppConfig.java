@@ -1,7 +1,7 @@
 package com.github.wukap.automatedAccountingSystem.configs;
 
 
-import com.github.wukap.automatedAccountingSystem.model.config.ESConfig;
+import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
 import com.github.wukap.automatedAccountingSystem.utils.XmlConfigParserUtils;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 @Configuration
 @ComponentScan("com.github.wukap.automatedAccountingSystem")
+
 public class AppConfig
 {
     @Bean
@@ -21,7 +22,7 @@ public class AppConfig
         return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
     }
     @Bean
-    public ESConfig esConfig() throws IOException
+    public InputConfig esConfig() throws IOException
     {
         //TODO: write file location from args
         String fileLocation = "inputConfig.xml";

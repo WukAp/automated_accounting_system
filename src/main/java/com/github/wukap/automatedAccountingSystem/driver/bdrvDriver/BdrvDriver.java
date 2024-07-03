@@ -1,6 +1,6 @@
 package com.github.wukap.automatedAccountingSystem.driver.bdrvDriver;
 
-import com.github.wukap.automatedAccountingSystem.driver.ESDriver;
+import com.github.wukap.automatedAccountingSystem.driver.Driver;
 import com.github.wukap.automatedAccountingSystem.model.ESValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
@@ -20,13 +20,12 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
 @Service
-public class BdrvDriver extends ESDriver<BdrvValue> {
+public class BdrvDriver extends Driver<BdrvValue> {
     @Autowired
     @Qualifier("bdrvDataSource")
     private HikariDataSource dataSource;
     private ScheduledExecutorService executorService;
-    public BdrvDriver() {
-    }
+
     protected void start_() {
         if(isStarted())return;
         setIsStarted(true);
@@ -69,13 +68,4 @@ public class BdrvDriver extends ESDriver<BdrvValue> {
         }
     }
 
-    @Override
-    public boolean isInput() {
-        return false;
-    }
-
-    @Override
-    public boolean isOutput() {
-        return true;
-    }
 }

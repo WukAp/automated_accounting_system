@@ -2,46 +2,23 @@
 
 <config xmlns="http://www.w3.org/2001/XMLSchema"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <ffc>
-        <sensors>
-            <sensor id="101" item_id="WR111A_R_PV_Out"/>
-            <sensor id="102" item_id="QR111A_R_PV_Out"/>
-            <sensor id="103" item_id="TRA111A_R_PV_Out"/>
-        </sensors>
-        <events>
-            <event type="transaction" tag_Start="BdrvTransact_Route6_1_Start"
-                   tag_1="BdrvTransact_Route6_1_Data1"
-                   tag_2="BdrvTransact_Route6_1_Data2"
-                   tag_3="BdrvTransact_Route6_1_Data3"
-                   tag_4="BdrvTransact_Route6_1_Data4"/>
+    <sensors>
+        <sensor id="101" item_id="WR111A_R_PV_Out"/>
+        <sensor id="102" item_id="QR111A_R_PV_Out"/>
+        <sensor id="103" item_id="TRA111A_R_PV_Out"/>
+    </sensors>
+    <events>
+        <event type="transaction" tag_Start="BdrvTransact_Route6_1_Start"
+               tag_1="BdrvTransact_Route6_1_Data1"
+               tag_2="BdrvTransact_Route6_1_Data2"
+               tag_3="BdrvTransact_Route6_1_Data3"
+               tag_4="BdrvTransact_Route6_1_Data4"/>
 
-            <event type="status" UU_id="101" tag="BdrvStatusSet_P1_Data"/>
-        </events>
-        <settings>
-            <ffc_id>23</ffc_id>
-            <measure_events_period>60000</measure_events_period>
-            <history_days>30</history_days>
-        </settings>
-    </ffc>
-    <ffc>
-        <sensors>
-            <sensor id="101" item_id="WR111A_R_PV_Out"/>
-            <sensor id="102" item_id="QR111A_R_PV_Out"/>
-            <sensor id="103" item_id="TRA111A_R_PV_Out"/>
-        </sensors>
-        <events>
-            <event type="transaction" tag_Start="BdrvTransact_Route6_1_Start"
-                   tag_1="BdrvTransact_Route6_1_Data1"
-                   tag_2="BdrvTransact_Route6_1_Data2"
-                   tag_3="BdrvTransact_Route6_1_Data3"
-                   tag_4="BdrvTransact_Route6_1_Data4"/>
-
-            <event type="status" UU_id="101" tag="BdrvStatusSet_P1_Data"/>
-        </events>
-        <settings>
-            <ffc_id>23</ffc_id>
-            <measure_events_period>60000</measure_events_period>
-            <history_days>30</history_days>
-        </settings>
-    </ffc>
+        <event type="status" UU_id="101" tag="BdrvStatusSet_P1_Data"/>
+    </events>
+    <settings>
+        <ffc_id>23</ffc_id>
+        <measure_events_period>60000</measure_events_period>
+        <history_days>30</history_days>
+    </settings>
 </config>
