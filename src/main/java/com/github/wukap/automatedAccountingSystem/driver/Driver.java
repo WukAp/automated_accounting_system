@@ -27,13 +27,13 @@ public abstract class Driver<R, V> {
 
     protected abstract R read_(String tagname);
 
-    protected abstract void write_(String tagname, V value);
+    protected abstract void write_(V value);
 
 
-    public void write(String tagname, V value) {
+    public void write( V value) {
 
         try {
-            write_(tagname, value);
+            write_(value);
 
         } catch (Exception e) {
             log.error("Exception while writing to driver " + getName(), e);

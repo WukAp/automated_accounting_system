@@ -1,11 +1,10 @@
-package com.github.wukap.automatedAccountingSystem.driver.asutpDriver;
+package com.github.wukap.automatedAccountingSystem.driver.opcDriver;
 
 import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.opcfoundation.ua.application.Client;
 import org.opcfoundation.ua.application.SessionChannel;
-import org.opcfoundation.ua.builtintypes.ExpandedNodeId;
 import org.opcfoundation.ua.builtintypes.NodeId;
 import org.opcfoundation.ua.builtintypes.UnsignedInteger;
 import org.opcfoundation.ua.common.ServiceResultException;
@@ -48,8 +47,12 @@ public class ConnectionFactoryImpl implements ConnectionFactory<OpcUaDriver.OpcU
     @Override
     public void closeConnection() {
         try {
-            activeChannel.close();
-        } catch (ServiceResultException e) {
+            if (activeChannel != null) {
+                activeChannel.close();
+            } else {
+                log.info("There is no active connection to close");
+            }
+        } catch (Exception e) {
             log.warn("Can't close connection to OPC UA server", e);
         } finally {
             activeChannel = null;

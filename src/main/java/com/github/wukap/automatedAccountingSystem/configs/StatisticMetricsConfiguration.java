@@ -12,6 +12,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class StatisticMetricsConfiguration {
     @Value("${history_logs_buffer_capacity}")
     private int historyLogsBufferCapacity;
+
     @Bean
     public ArrayBlockingQueue<HistoryLog> transactionLogsQueue() {
         return new ArrayBlockingQueue<HistoryLog>(historyLogsBufferCapacity);

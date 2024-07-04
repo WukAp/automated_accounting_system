@@ -42,6 +42,7 @@ public class InputConfig {
 
     @Data
     @AllArgsConstructor
+    @Getter
     public static class Settings {
         private int measure_events_period;
         private int history_days;

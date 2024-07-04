@@ -1,28 +1,29 @@
 package com.github.wukap.automatedAccountingSystem.model.bdrvValue;
 
+import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
+
 @Entity
 @Data
+@RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
-public class SpTransactionValue implements BdrvValue {
+public class SpTransactionValue extends BdrvValue {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    @NonNull
-    int pFfcId;
 
     @NonNull
-    int pInfoType;
+    private String pInfoType;
 
     @NonNull
-    long pTrnInfo;
+    private String pTrnInfo;
 
     @NonNull
-    String pMsrTime;
+    private String pMsrTime;
+
 }

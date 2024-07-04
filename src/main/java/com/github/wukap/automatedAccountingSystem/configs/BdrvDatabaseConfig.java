@@ -19,8 +19,7 @@ import java.util.Map;
 
 @Configuration
 
-public class BdrvDatabaseConfig
-{
+public class BdrvDatabaseConfig {
     @Autowired
     private EntityManagerFactoryBuilder entityManagerFactoryBuilder;
     @Value("${bdrv.db.ip}")
@@ -37,32 +36,24 @@ public class BdrvDatabaseConfig
     private int dbConnectionTimeout;
 
     @Bean
-    public HikariDataSource bdrvDataSource()
-    {
-        return new HikariDataSource(
-                new HikariConfig()
-                {{
-                    setJdbcUrl("jdbc:sqlserver://" + dbAddress + ";databaseName=" + dbName);
-                    setUsername(dbUsername);
-                    setPassword(dbPassword);
-                    setMaximumPoolSize(Runtime.getRuntime().availableProcessors());
-                    //setDriverClassName("net.sourceforge.jtds.jdbc.Driver");
-                    setConnectionTimeout(dbConnectionTimeout);
-                    setIdleTimeout(10000);
-                }}
-        );
+    public HikariDataSource bdrvDataSource() {
+        return new HikariDataSource(new HikariConfig() {{
+            setJdbcUrl("jdbc:sqlserver://" + dbAddress + ";databaseName=" + dbName);
+            setUsername(dbUsername);
+            setPassword(dbPassword);
+            setMaximumPoolSize(Runtime.getRuntime().availableProcessors());
+            //setDriverClassName("net.sourceforge.jtds.jdbc.Driver");
+            setConnectionTimeout(dbConnectionTimeout);
+            setIdleTimeout(10000);
+        }});
     }
+
     @Bean(name = "bdrvEntityManager")
     public LocalContainerEntityManagerFactoryBean bdrvEntityManager() {
         Map<String, String> properties = new HashMap<>();
         properties.put("hibernate.hbm2ddl.auto", "update");
 
-        LocalContainerEntityManagerFactoryBean em = entityManagerFactoryBuilder
-                .dataSource(bdrvDataSource())
-                .packages("com.example.model.bdrv")
-                .persistenceUnit("bdrv")
-                .properties(properties)
-                .build();
+        LocalContainerEntityManagerFactoryBean em = entityManagerFactoryBuilder.dataSource(bdrvDataSource()).packages("com.example.model.bdrv").persistenceUnit("bdrv").properties(properties).build();
         em.setEntityManagerFactoryInterface(jakarta.persistence.EntityManagerFactory.class);
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();

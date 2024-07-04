@@ -1,29 +1,32 @@
 package com.github.wukap.automatedAccountingSystem.model.bdrvValue;
 
+import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Entity
 @Data
+@RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
-public class SpMsnStatusSetValue implements BdrvValue {
+public class SpMsnStatusSetValue extends BdrvValue {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    @NonNull
-    int pFfcId;
+
+
 
     @NonNull
-    int pMsnId;
+    private String pMsnId;
 
     @NonNull
-    int pMnsId;
+    private String pMnsId;
 
     @NonNull
-    String pSetTime;
+    private String pSetTime;
+
 }

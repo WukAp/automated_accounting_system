@@ -1,6 +1,6 @@
 package com.github.wukap.automatedAccountingSystem.configs;
 
-import com.github.wukap.automatedAccountingSystem.driver.asutpDriver.OpcUaDriver;
+import com.github.wukap.automatedAccountingSystem.driver.opcDriver.OpcUaDriver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,9 +14,10 @@ public class OpcDatabaseConfig {
 
     @Value("${opc.db.prefix}")
     private String dbPrefix;
+
     @Bean
     public OpcUaDriver.OpcUaServerConnectionInfo connectionsInfo() {
-        return new OpcUaDriver.OpcUaServerConnectionInfo(dbUrl,dbNamespace,dbPrefix);
+        return new OpcUaDriver.OpcUaServerConnectionInfo(dbUrl, dbNamespace, dbPrefix);
     }
 
 

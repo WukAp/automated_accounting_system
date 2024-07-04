@@ -2,8 +2,6 @@ package com.github.wukap.automatedAccountingSystem;
 
 import com.github.wukap.automatedAccountingSystem.model.HistoryLog;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
-import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.*;
-import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.BufferedValueRepository;
 import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.SpMsnStatusSetValueRepository;
 import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.SpMsrValueRepository;
 import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.SpTransactionValueRepository;
@@ -19,14 +17,12 @@ import java.util.concurrent.ArrayBlockingQueue;
 @Service
 public class StatisticService {
     private final ArrayBlockingQueue<HistoryLog> historyLogsQueue;
-    private final BufferedValueRepository bufferedValueRepository;
     private final List<JpaRepository<? extends BdrvValue , String>> bufferedBdrvValuesRepositories;
 
     @Autowired
-    public StatisticService(ArrayBlockingQueue<HistoryLog> historyLogsQueue, BufferedValueRepository bufferedValueRepository, SpMsrValueRepository spMsrValueRepository, SpTransactionValueRepository spTransactionValueRepository, SpMsnStatusSetValueRepository spMsnStatusSetValueRepository) {
+    public StatisticService(ArrayBlockingQueue<HistoryLog> historyLogsQueue, SpMsrValueRepository spMsrValueRepository, SpTransactionValueRepository spTransactionValueRepository, SpMsnStatusSetValueRepository spMsnStatusSetValueRepository) {
         this.bufferedBdrvValuesRepositories = List.of(spMsrValueRepository, spTransactionValueRepository, spMsnStatusSetValueRepository);
         this.historyLogsQueue = historyLogsQueue;
-        this.bufferedValueRepository = bufferedValueRepository;
     }
 
     public void addTransactionLog(HistoryLog transactionLog) {

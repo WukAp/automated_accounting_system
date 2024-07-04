@@ -16,11 +16,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
-@EnableJpaRepositories(
-        basePackages = "com.github.wukap.automatedAccountingSystem",
-        entityManagerFactoryRef = "h2EntityManager",
-        transactionManagerRef = "h2TransactionManager"
-)
+
+@EnableJpaRepositories(basePackages = "com.github.wukap.automatedAccountingSystem", entityManagerFactoryRef = "h2EntityManager", transactionManagerRef = "h2TransactionManager")
 
 @Configuration
 public class H2DatabaseConfig {
@@ -49,17 +46,13 @@ public class H2DatabaseConfig {
 
         return dataSource;
     }
+
     @Bean(name = "h2EntityManager")
     public LocalContainerEntityManagerFactoryBean h2EntityManager() {
         Map<String, String> properties = new HashMap<>();
         properties.put("hibernate.hbm2ddl.auto", "create");
 
-        LocalContainerEntityManagerFactoryBean em = entityManagerFactoryBuilder
-                .dataSource(h2DataSource())
-                .packages("com.github.wukap.automatedAccountingSystem")
-                .persistenceUnit("h2")
-                .properties(properties)
-                .build();
+        LocalContainerEntityManagerFactoryBean em = entityManagerFactoryBuilder.dataSource(h2DataSource()).packages("com.github.wukap.automatedAccountingSystem").persistenceUnit("h2").properties(properties).build();
         em.setEntityManagerFactoryInterface(jakarta.persistence.EntityManagerFactory.class);
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();

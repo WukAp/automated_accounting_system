@@ -15,15 +15,14 @@ import java.util.HashMap;
 @Configuration
 @ComponentScan("com.github.wukap.automatedAccountingSystem")
 
-public class AppConfig
-{
+public class AppConfig {
     @Bean
     public EntityManagerFactoryBuilder entityManagerFactoryBuilder() {
         return new EntityManagerFactoryBuilder(new HibernateJpaVendorAdapter(), new HashMap<>(), null);
     }
+
     @Bean
-    public InputConfig esConfig() throws IOException
-    {
+    public InputConfig esConfig() throws IOException {
         //TODO: write file location from args
         String fileLocation = "inputConfig.xml";
         return XmlConfigParserUtils.parse(fileLocation);
