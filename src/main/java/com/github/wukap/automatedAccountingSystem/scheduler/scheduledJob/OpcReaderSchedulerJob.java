@@ -5,6 +5,7 @@ import com.github.wukap.automatedAccountingSystem.h2Database.SpMsnStatusSetValue
 import com.github.wukap.automatedAccountingSystem.h2Database.SpMsrValueRepository;
 import com.github.wukap.automatedAccountingSystem.model.OpcValue;
 import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
+import com.github.wukap.automatedAccountingSystem.utils.MathUtils;
 import com.github.wukap.automatedAccountingSystem.utils.OpcValueToBdrvValueConverter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
@@ -30,11 +32,11 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     private final int sp_msr_value_delay;
     private final int sp_msn_status_value_delay;
     private final int sp_transaction_value_delay;
-    private int currentDelay = 0;
+    private AtomicInteger currentDelay = new AtomicInteger(0);
 
 
     @Autowired
-    public OpcReaderSchedulerJob(OpcUaDriver opcUaDriver, InputConfig config, SpMsrValueRepository spMsrValueRepository, SpMsnStatusSetValueRepository spMsnStatusSetValueRepository, @Value("${sp_msr_value_reading_in_seconds}") int spMsrValueInSeconds, @Value("${sp_msn_status_value_in_seconds}") int spMsnStatusValueInSeconds, @Value("${sp_transaction_value_in_seconds}") int spTransactionValueInSeconds) {
+    public OpcReaderSchedulerJob(OpcUaDriver opcUaDriver, InputConfig config, SpMsrValueRepository spMsrValueRepository, SpMsnStatusSetValueRepository spMsnStatusSetValueRepository, @Value("${sp_msr_value_reading_in_seconds}") int spMsrValueInSeconds, @Value("${sp_msn_status_value_reading_in_seconds}") int spMsnStatusValueInSeconds, @Value("${sp_transaction_value_reading_in_seconds}") int spTransactionValueInSeconds) {
         this.opcUaDriver = opcUaDriver;
         this.config = config;
         this.spMsrValueRepository = spMsrValueRepository;
@@ -43,22 +45,23 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
         sp_msn_status_value_delay = spMsnStatusValueInSeconds;
         sp_transaction_value_delay = spTransactionValueInSeconds;
         this.virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();
-        this.delay = sp_msr_value_delay * sp_msn_status_value_delay * sp_transaction_value_delay;
+        this.delay = MathUtils.findGCD(sp_msr_value_delay, sp_msn_status_value_delay, sp_transaction_value_delay);
     }
 
     @Override
     public void run() {
         try {
-            if (currentDelay % sp_msr_value_delay == 0) for (InputConfig.Sensor sensor : config.getSensors()) {
+            if (currentDelay.get() % sp_msr_value_delay == 0) for (InputConfig.Sensor sensor : config.getSensors()) {
                 virtualExecutor.execute(() -> this.readMsrValue(sensor));
             }
-            if (currentDelay % sp_msn_status_value_delay == 0)
+            if (currentDelay.get() % sp_msn_status_value_delay == 0)
                 for (InputConfig.EventStatus status : config.getEventStatuses()) {
                     virtualExecutor.execute(() -> this.readStatusSet(status));
                 }
-            if (currentDelay % sp_transaction_value_delay == 0) {
+            if (currentDelay.get() % sp_transaction_value_delay == 0) {
 
             }
+            currentDelay.incrementAndGet();
         } catch (Exception e) {
             e.printStackTrace();
         }

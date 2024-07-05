@@ -1,5 +1,7 @@
 package com.github.wukap.automatedAccountingSystem;
 
+import com.github.wukap.automatedAccountingSystem.h2Database.SpMsrValueRepository;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
 import com.github.wukap.automatedAccountingSystem.scheduler.Scheduler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -18,9 +20,9 @@ public class Application {
             System.exit(1);
         }
         var app = SpringApplication.run(Application.class, args);
-
+        var repo = app.getBean(SpMsrValueRepository.class);
+        repo.save(new SpMsrValue("234", "9520", "1055", "02.06.2024 20:02:00"));
         var scheduler = app.getBean(Scheduler.class);
         scheduler.start();
-
     }
 }

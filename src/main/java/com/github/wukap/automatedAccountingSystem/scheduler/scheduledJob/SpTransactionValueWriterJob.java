@@ -1,6 +1,6 @@
 package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 
-import com.github.wukap.automatedAccountingSystem.StatisticService;
+import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.BdrvDriver;
 import com.github.wukap.automatedAccountingSystem.h2Database.SpTransactionValueRepository;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpTransactionValue;

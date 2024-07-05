@@ -1,6 +1,6 @@
 package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 
-import com.github.wukap.automatedAccountingSystem.StatisticService;
+import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.BdrvDriver;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
@@ -36,7 +36,7 @@ public abstract class BdrvWriterSchedulerJob<R extends JpaRepository<T, String>,
                 if (result) {
                     log.info(value + " was successfully written");
                     valueRepository.delete(value);
-                    statisticService.addHistoryLog((SpMsrValue) value);
+                    statisticService.addWrittenLog((SpMsrValue) value);
                 } else {
                     log.warn(value + " was not written, something went wrong");
                 }

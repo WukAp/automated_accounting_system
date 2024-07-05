@@ -10,12 +10,20 @@ import java.util.concurrent.ArrayBlockingQueue;
 @Configuration
 
 public class StatisticMetricsConfiguration {
-    @Value("${history_logs_buffer_capacity}")
-    private int historyLogsBufferCapacity;
+    @Value("${written_logs_buffer_capacity}")
+    private int writtenLogsBufferCapacity;
+    @Value("${thrown_logs_buffer_capacity}")
+    private int thrownLogsBufferCapacity;
 
     @Bean
-    public ArrayBlockingQueue<HistoryLog> transactionLogsQueue() {
-        return new ArrayBlockingQueue<HistoryLog>(historyLogsBufferCapacity);
+    public ArrayBlockingQueue<HistoryLog> writtenLogsQueue() {
+        return new ArrayBlockingQueue<HistoryLog>(writtenLogsBufferCapacity);
+
+    }
+
+    @Bean
+    public ArrayBlockingQueue<HistoryLog> thrownLogsQueue() {
+        return new ArrayBlockingQueue<HistoryLog>(thrownLogsBufferCapacity);
 
     }
 }

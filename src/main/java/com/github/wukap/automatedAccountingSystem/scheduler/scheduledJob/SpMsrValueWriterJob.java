@@ -1,6 +1,6 @@
 package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 
-import com.github.wukap.automatedAccountingSystem.StatisticService;
+import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.BdrvDriver;
 import com.github.wukap.automatedAccountingSystem.h2Database.SpMsrValueRepository;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
@@ -38,11 +38,12 @@ public class SpMsrValueWriterJob extends BdrvWriterSchedulerJob<SpMsrValueReposi
             } catch (SQLException e) {
                 log.error("Can't write " + value + " to BDRV because of SQL exception");
                 valueRepository.delete(value);
+                statisticService.addThrownLog((SpMsrValue) value);
             }
             if (result) {
                 log.info(value + " was successfully written");
                 valueRepository.delete(value);
-                statisticService.addHistoryLog((SpMsrValue) value);
+                statisticService.addWrittenLog((SpMsrValue) value);
             } else {
                 log.warn(value + " was not written, something went wrong");
             }
