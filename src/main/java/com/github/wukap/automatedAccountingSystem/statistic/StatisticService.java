@@ -113,10 +113,11 @@ public class StatisticService {
 
     public void addThrownLog(SpMsrValue value) {
         Optional<InputConfig.Sensor> currentSensor = config.getSensors().stream().filter(sensor -> sensor.getId().equals(value.getId())).findFirst();
-        if (currentSensor.isEmpty()) {
-            return;
+        String tag = "-";
+        if (!currentSensor.isEmpty()) {
+            tag = currentSensor.get().getTag();
         }
-        addThrownLog(new HistoryLog(value.getId(), currentSensor.get().getTag(), value.getValue(), value.getTime()));
+        addThrownLog(new HistoryLog(value.getId(), tag, value.getValue(), value.getTime()));
     }
 
     public void addThrownLog(SpTransactionValue value) {
