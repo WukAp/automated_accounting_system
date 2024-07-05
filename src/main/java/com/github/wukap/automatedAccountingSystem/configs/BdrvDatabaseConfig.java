@@ -35,6 +35,11 @@ public class BdrvDatabaseConfig {
     @Value("${bdrv.db.connectionTimeout}")
     private int dbConnectionTimeout;
 
+    @Value("${bdrv.db.idleTimeout}")
+    private int dbIdleTimeout;
+    @Value("${bdrv.db.maxLifetime}")
+    private int dbMaxLifetime;
+
     @Bean
     public HikariDataSource bdrvDataSource() {
         return new HikariDataSource(new HikariConfig() {{
@@ -42,9 +47,10 @@ public class BdrvDatabaseConfig {
             setUsername(dbUsername);
             setPassword(dbPassword);
             setMaximumPoolSize(Runtime.getRuntime().availableProcessors());
+            setMaxLifetime(dbMaxLifetime);
             //setDriverClassName("net.sourceforge.jtds.jdbc.Driver");
             setConnectionTimeout(dbConnectionTimeout);
-            setIdleTimeout(10000);
+            setIdleTimeout(dbIdleTimeout);
         }});
     }
 

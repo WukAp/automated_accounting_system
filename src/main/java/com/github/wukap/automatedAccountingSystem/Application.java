@@ -1,14 +1,8 @@
 package com.github.wukap.automatedAccountingSystem;
 
-import com.github.wukap.automatedAccountingSystem.driver.opcDriver.OpcUaDriver;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.BdrvDriver;
-import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsnStatusSetValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
-import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpTransactionValue;
-import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
-import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.SpMsnStatusSetValueRepository;
 import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.SpMsrValueRepository;
-import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.SpTransactionValueRepository;
 import com.github.wukap.automatedAccountingSystem.scheduler.Scheduler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -24,36 +18,22 @@ public class Application {
     public static void main(String[] args) throws InterruptedException {
 
         var app = SpringApplication.run(Application.class, args);
-        var sqlOutputDriver = app.getBean(BdrvDriver.class);
-        var config = app.getBean(InputConfig.class);
-        System.out.println(app.getBean(InputConfig.class));
-//        Thread.sleep(3000);
-        sqlOutputDriver.write( new SpMsrValue( "105", "9520", "08.10.2015 20:00:00"));
-        //sqlOutputDriver.write("test", new SpTransactionValue(19, 0, 10701, "07.10.2015 18:16:25"));
-        //sqlOutputDriver.write("test", new SpMsnStatusValue(19, 1, 1, "07.10.2015 18:16:25"));
-        var val = app.getBean(SpMsrValueRepository.class);
-        val.save(new SpMsrValue( "20", "30", "08.10.2015 20:00:00"));
-        val.save(new SpMsrValue( "20", "30", "08.10.2015 20:00:00"));
-        val.save(new SpMsrValue( "20", "30", "08.10.2015 20:00:00"));
-        val.save(new SpMsrValue( "20", "30", "08.10.2015 20:00:00"));
-        val.findAll().forEach(System.out::println);
-
-        val.findAll().forEach(System.out::println);
-        System.out.println("----");
-        val.save(new SpMsrValue( "20", "30", "08.10.2015 20:00:00"));
-        var vaf = app.getBean(SpTransactionValueRepository.class);
-        vaf.save(new SpTransactionValue("20", "30", "08.10.2015 20:00:00"));
-        var val2 = app.getBean(SpMsnStatusSetValueRepository.class);
-        val2.save(new SpMsnStatusSetValue( "20", "30", "08.10.2015 20:00:00"));
-
-        val.findAll().forEach(System.out::println);
-        var statistic = app.getBean(StatisticService.class);
-        System.out.println(statistic.getBufferedValueAmount());
-        var opc = app.getBean(OpcUaDriver.class);
-        opc.read_("//ObjectRoot/ASUTP/Cycle_Data/Value2");
-
+        var repo = app.getBean(SpMsrValueRepository.class);
+        repo.save(new SpMsrValue("23", "9520", "105", "03.06.2024 20:01:00"));
+        repo.save(new SpMsrValue("243", "9520", "105", "03.06.2024 20:01:00"));
+        repo.save(new SpMsrValue("263", "9520", "105", "03.06.2024 20:01:00"));
+        repo.save(new SpMsrValue("223", "9520", "105", "05.06.2024 20:01:00"));
+        repo.save(new SpMsrValue("263", "9520", "105", "05.06.2024 20:01:00"));
+        repo.save(new SpMsrValue("234", "9520", "1055", "02.06.2024 20:02:00"));
         var scheduler = app.getBean(Scheduler.class);
-        scheduler.start();//opc.write("test", new SpTransactionValue(19, 0, 10701, "07.10.2015 18:16:25"));
-        //opc.write("test", new SpMsnStatusValue(19, 1, 1, "07.10.2015 18:16:25"));
+        scheduler.start();
+        repo.findAll().forEach(System.out::println);
+        var statisticService = app.getBean(StatisticService.class);
+        var bdrvDriver = app.getBean(BdrvDriver.class);
+while (true) {
+    Thread.sleep(1000);
+    repo.findAll().forEach(System.out::println);
+    System.out.println("------------");
+}
     }
 }

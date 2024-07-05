@@ -23,7 +23,7 @@ public class InputConfig {
     @AllArgsConstructor
     public static class Sensor {
         private String id;
-        private String item_id;
+        private String tag;
     }
 
     @Data
@@ -32,21 +32,21 @@ public class InputConfig {
         private String type;
         private Map<String, String> tags;
     }
-
+    @Data
     @AllArgsConstructor
     public static class EventStatus {
         private String type;
         private String tag;
-        private String UU_id;
+        private String uuId;
     }
 
     @Data
     @AllArgsConstructor
     @Getter
     public static class Settings {
-        private int measure_events_period;
-        private int history_days;
-        private int ffc_id;
+        private int measureEventsPeriod;
+        private int historyDays;
+        private int ffcId;
     }
 
 

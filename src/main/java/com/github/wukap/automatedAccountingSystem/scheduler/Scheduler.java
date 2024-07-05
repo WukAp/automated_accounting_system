@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+
 @Component
 public class Scheduler {
     private final List<ScheduledJob> scheduledJobs;
@@ -17,9 +18,19 @@ public class Scheduler {
         this.scheduledJobs = scheduledJobs;
         executor = Executors.newScheduledThreadPool(scheduledJobs.size());
     }
+
     public void start() {
         for (ScheduledJob job : scheduledJobs) {
-            executor.scheduleAtFixedRate(job, 0, 5, java.util.concurrent.TimeUnit.SECONDS);
+            switch (job.getType()) {
+                case DELAY:
+                    executor.scheduleWithFixedDelay(job, 0, job.getDelay(), job.getDelayTimeUnit());
+                    ;
+                    break;
+                case RATE:
+                    executor.scheduleAtFixedRate(job, 0, job.getDelay(), job.getDelayTimeUnit());
+                    break;
+            }
+
         }
     }
 }

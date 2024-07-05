@@ -11,8 +11,9 @@ public class SpMsrValueQuery extends BdrvQuery {
         super(ffcId);
         this.data = data;
     }
+
     @Override
     public String getQuery() {
-        return"exec sp_msr_value_send @p_ffc_id=" + this.ffc_id + ", @p_msd_id=" + data.getPMsdId() + ", @p_msr_value=" + data.getPMsrValue() + ", @p_msr_time='" + data.getPMsrTime() + "'";
+        return "exec sp_msr_value_send @p_ffc_id=" + this.ffcId + ", @p_msd_id=" + data.getPMsdId() + ", @p_msr_value=" + data.getPMsrValue() + ", @p_msr_time='" + data.getPMsrTime() + "'";
     }
 }

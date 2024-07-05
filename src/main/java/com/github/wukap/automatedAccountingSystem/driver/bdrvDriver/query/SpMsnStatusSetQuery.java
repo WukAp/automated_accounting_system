@@ -14,7 +14,7 @@ public class SpMsnStatusSetQuery extends BdrvQuery {
 
     @Override
     public String getQuery() {
-        return "exec sp_msn_status_set @p_ffc_id=" + this.ffc_id + ", @p_msn_id=" + data.getPMsnId() + ", @p_mns_id=" + data.getPMnsId() + ", @p_set_time='" + data.getPSetTime() + "'";
+        return "exec sp_msn_status_set @p_ffc_id=" + this.ffcId + ", @p_msn_id=" + data.getPMsnId() + ", @p_mns_id=" + data.getPMnsId() + ", @p_set_time='" + data.getPSetTime() + "'";
     }
 
 }

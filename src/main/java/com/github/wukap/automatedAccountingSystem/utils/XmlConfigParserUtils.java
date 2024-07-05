@@ -1,7 +1,6 @@
 package com.github.wukap.automatedAccountingSystem.utils;
 
 import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
-
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -33,11 +32,11 @@ public class XmlConfigParserUtils {
             Document doc = db.parse(file);
             doc.getDocumentElement().normalize();
             Element settingsElement = (Element) doc.getElementsByTagName("settings").item(0);
-            int measure_events_period = Integer.parseInt(settingsElement.getElementsByTagName("measure_events_period").item(0).getTextContent());
-            int history_days = Integer.parseInt(settingsElement.getElementsByTagName("history_days").item(0).getTextContent());
+            int measureEventsPeriod = Integer.parseInt(settingsElement.getElementsByTagName("measure_events_period").item(0).getTextContent());
+            int historyDays = Integer.parseInt(settingsElement.getElementsByTagName("history_days").item(0).getTextContent());
             int ffc_id = Integer.parseInt(settingsElement.getElementsByTagName("ffc_id").item(0).getTextContent());
 
-            config.setSettings(new InputConfig.Settings(measure_events_period, history_days, ffc_id));
+            config.setSettings(new InputConfig.Settings(measureEventsPeriod, historyDays, ffc_id));
 
             List<InputConfig.Sensor> sensors = new ArrayList<>();
             NodeList sensorNodes = doc.getElementsByTagName("sensor");

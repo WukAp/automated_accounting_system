@@ -1,52 +1,37 @@
 package com.github.wukap.automatedAccountingSystem.driver;
 
-import com.github.wukap.automatedAccountingSystem.common.CustomThreadFactory;
 import lombok.Getter;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
+import org.opcfoundation.ua.common.ServiceResultException;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.sql.SQLException;
 
 @Slf4j
 public abstract class Driver<R, V> {
 
     public static final String DRIVER_TAG = "driver";
 
-    private ExecutorService driverExecutorService;
     @Getter
     private final String name = getClass().getSimpleName();
 
 
-    @Getter
-    private boolean isStarted;
+    protected abstract R read(String tagname) throws ServiceResultException;
 
-    protected void setIsStarted(boolean isStarted) {
-        this.isStarted = isStarted;
-    }
-
-    protected abstract R read_(String tagname);
-
-    protected abstract void write_(V value);
+    protected abstract boolean write_(V value) throws SQLException;
 
 
-    public void write( V value) {
+    public boolean write(V value) throws SQLException {
 
         try {
-            write_(value);
+            return write_(value);
 
+        } catch (SQLException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Exception while writing to driver " + getName(), e);
-
-
         }
+        return false;
     }
 
-    @Synchronized
-    public ExecutorService getDriverExecutor(int threadCount) {
-        if (driverExecutorService == null) {
-            driverExecutorService = Executors.newFixedThreadPool(threadCount, new CustomThreadFactory("common-driver-executor"));
-        }
-        return driverExecutorService;
-    }
+
 }

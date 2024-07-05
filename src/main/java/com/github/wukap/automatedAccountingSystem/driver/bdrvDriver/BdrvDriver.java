@@ -1,75 +1,97 @@
 package com.github.wukap.automatedAccountingSystem.driver.bdrvDriver;
 
 import com.github.wukap.automatedAccountingSystem.driver.Driver;
-import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
-import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.query.BdrvQuery;
+import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.query.SpMsnStatusSetQuery;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.query.SpMsrValueQuery;
+import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.query.SpTransactionQuery;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsnStatusSetValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpTransactionValue;
 import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
 @Service
-public class BdrvDriver extends Driver<Object, BdrvValue> {
+public class BdrvDriver extends Driver<Object, BdrvQuery> {
     @Autowired
     @Qualifier("bdrvDataSource")
     private HikariDataSource dataSource;
     private ScheduledExecutorService executorService;
+    private final InputConfig inputConfig;
+    private final int dbConnectionTimeout;
+
     @Autowired
-    private InputConfig inputConfig;
-
-    protected void start_() {
-        if (isStarted()) return;
-        setIsStarted(true);
-        if (executorService != null) executorService.shutdown();
-
+    public BdrvDriver(InputConfig inputConfig, @Value("${bdrv.db.connectionTimeout}") int dbConnectionTimeout) {
+        this.inputConfig = inputConfig;
+        this.dbConnectionTimeout = dbConnectionTimeout;
     }
 
-    public void stop() {
-        setIsStarted(false);
-        executorService.shutdown();
-        dataSource.close();
-    }
 
     @Override
-    protected Object read_(String tagname) {
+    protected Object read(String tagname) {
         throw new UnsupportedOperationException();
     }
 
+    public boolean isNetworkConnected() {
+        try {
+            return dataSource.getConnection().isValid(dbConnectionTimeout);
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    public boolean writeValue(SpMsrValue data) throws SQLException {
+        return write(new SpMsrValueQuery(data, inputConfig.getSettings().getFfcId()));
+    }
+
+    public boolean writeValue(SpTransactionValue data) throws SQLException {
+        return write(new SpTransactionQuery(data, inputConfig.getSettings().getFfcId()));
+    }
+
+    public boolean writeValue(SpMsnStatusSetValue data) throws SQLException {
+        return write(new SpMsnStatusSetQuery(data, inputConfig.getSettings().getFfcId()));
+    }
+
+    public boolean writeValue(BdrvValue data) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
-    protected void write_(BdrvValue data) {
-        //var writeonlyQuery = writeOnlyQueries.get(0).stream().findAny().orElse(null);
-        //writeWriteOnly(new SpMsrValueQuery(data));
-        //writeWriteOnly(new SpTransactionQuery((SpTransactionValue) data));
-        writeWriteOnly(new SpMsrValueQuery((SpMsrValue) data, inputConfig.getSettings().getFfc_id()));
+    protected boolean write_(BdrvQuery data) throws SQLException {
+        return writeWriteOnly(data);
     }
 
     @SneakyThrows
-    private void writeWriteOnly(BdrvQuery query) {
+    public boolean writeWriteOnly(BdrvQuery query) throws SQLException {
         log.info("Try execute SQL: " + query.getQuery());
 
-        try (Connection connection = dataSource.getConnection()){
+        try (Connection connection = dataSource.getConnection()) {
             Statement statement = connection.createStatement();
-            var result = statement.executeQuery(query.getQuery());
-            log.trace("SQL query executed successfully. Result: " + result);
-            // Execute the query
+            var result = statement.executeUpdate(query.getQuery());
 
+            return true;
         } catch (SQLException e) {
-            log.trace("SQL query execution failed: " + e.getMessage());
+            log.info("SQL query execution failed: " + e.getMessage());
             throw e;
+        } catch (Exception e) {
+            log.info("SQL query execution failed: " + e.getMessage());
         }
-
+        return false;
     }
 
 }

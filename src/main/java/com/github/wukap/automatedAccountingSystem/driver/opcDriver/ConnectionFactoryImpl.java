@@ -19,12 +19,14 @@ import static org.opcfoundation.ua.utils.EndpointUtil.*;
 
 @Slf4j
 public class ConnectionFactoryImpl implements ConnectionFactory<OpcUaDriver.OpcUaServerConnectionInfo, SessionChannel> {
+    private final int CONNECTION_TIMEOUT;
     private final OpcUaDriver.OpcUaServerConnectionInfo connectionInfo;
     private SessionChannel activeChannel;
 
     private final HashMap<String, String> nodeNamesToId = new HashMap<>();
 
-    public ConnectionFactoryImpl(OpcUaDriver.OpcUaServerConnectionInfo connectionInfos) {
+    public ConnectionFactoryImpl(int connectionTimeout, OpcUaDriver.OpcUaServerConnectionInfo connectionInfos) {
+        CONNECTION_TIMEOUT = connectionTimeout;
         this.connectionInfo = connectionInfos;
     }
 
@@ -66,6 +68,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory<OpcUaDriver.OpcU
     private SessionChannel setupChannel() throws ServiceResultException {
         Client myClient = Client.createClientApplication(null);
         String connectionUrl = getActiveConnectionInfo().getConnectionUrl();
+        myClient.setTimeout(CONNECTION_TIMEOUT);
         EndpointDescription[] endpoints = myClient.discoverEndpoints(connectionUrl);
         if (connectionUrl.startsWith("opc.tcp")) {
             endpoints = selectByProtocol(endpoints, "opc.tcp");

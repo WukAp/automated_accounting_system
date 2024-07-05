@@ -3,7 +3,6 @@ package com.github.wukap.automatedAccountingSystem.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.aspectj.apache.bcel.generic.Type;
 
 import java.time.Instant;
 

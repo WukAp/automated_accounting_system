@@ -3,9 +3,9 @@
 <config xmlns="http://www.w3.org/2001/XMLSchema"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <sensors>
-        <sensor id="30" item_id="//ObjectRoot/ASUTP/Cycle_Data/Value2"/>
-        <sensor id="31" item_id="//ObjectRoot/ASUTP/Cycle_Data/Value2"/>
-        <sensor id="32" item_id="//ObjectRoot/ASUTP/Cycle_Data/Value2"/>
+        <sensor id="105" item_id="//ObjectRoot/ASUTP/Cycle_Data/Value1"/>
+        <sensor id="104" item_id="//ObjectRoot/ASUTP/Cycle_Data/Value2"/>
+        <sensor id="103" item_id="//ObjectRoot/ASUTP/Cycle_Data/Value3"/>
     </sensors>
     <events>
         <event type="transaction" tag_Start="BdrvTransact_Route6_1_Start"

@@ -50,7 +50,7 @@ public class H2DatabaseConfig {
     @Bean(name = "h2EntityManager")
     public LocalContainerEntityManagerFactoryBean h2EntityManager() {
         Map<String, String> properties = new HashMap<>();
-        properties.put("hibernate.hbm2ddl.auto", "create");
+        properties.put("hibernate.hbm2ddl.auto", "update");
 
         LocalContainerEntityManagerFactoryBean em = entityManagerFactoryBuilder.dataSource(h2DataSource()).packages("com.github.wukap.automatedAccountingSystem").persistenceUnit("h2").properties(properties).build();
         em.setEntityManagerFactoryInterface(jakarta.persistence.EntityManagerFactory.class);
