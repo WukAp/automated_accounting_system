@@ -81,6 +81,7 @@ public class XmlConfigParserUtils {
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
+            return null;
         }
         return config;
     }

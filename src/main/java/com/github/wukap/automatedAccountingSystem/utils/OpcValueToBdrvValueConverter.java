@@ -1,6 +1,7 @@
 package com.github.wukap.automatedAccountingSystem.utils;
 
 import com.github.wukap.automatedAccountingSystem.model.OpcValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsnStatusSetValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
 
 import java.time.Instant;
@@ -19,14 +20,21 @@ public class OpcValueToBdrvValueConverter {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(sourceTime, ZoneId.of("UTC"));
         return formatter.format(zonedDateTime);
     }
+
     public static ZonedDateTime formattedStringToZonedDateTimeConverter(String formattedTime) {
         LocalDateTime localDateTime = LocalDateTime.parse(formattedTime, formatter);
         return localDateTime.atZone(ZoneId.of("UTC"));
     }
 
-    public static SpMsrValue opcValueToSpMsnStatusSetValue(OpcValue opcValue, String pMsnId) {
+    public static SpMsrValue opcValueToSpMsrValueConverter(OpcValue opcValue, String pMsnId) {
         if (opcValue == null) return null;
         String formattedSourceTime = instantToFormattedStringConverter(opcValue.getSourceTime());
         return new SpMsrValue(opcValue.getValue().toString(), pMsnId, formattedSourceTime);
+    }
+
+    public static SpMsnStatusSetValue opcValueToSpMsnStatusSetValueConverter(OpcValue opcValue, String uuId) {
+        if (opcValue == null) return null;
+        String formattedSourceTime = instantToFormattedStringConverter(opcValue.getSourceTime());
+        return new SpMsnStatusSetValue(uuId, opcValue.getValue().toString(), formattedSourceTime);
     }
 }

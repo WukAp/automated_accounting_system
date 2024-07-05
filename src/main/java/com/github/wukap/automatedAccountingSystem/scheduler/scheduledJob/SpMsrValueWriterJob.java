@@ -2,8 +2,8 @@ package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 
 import com.github.wukap.automatedAccountingSystem.StatisticService;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.BdrvDriver;
+import com.github.wukap.automatedAccountingSystem.h2Database.SpMsrValueRepository;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
-import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.SpMsrValueRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

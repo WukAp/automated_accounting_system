@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+
+<config xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <sensors>
+        <sensor id="105" item_id="//ObjectRoot/ASUTP/Cycle_Data/Value1"/>
+        <sensor id="104" item_id="//ObjectRoot/ASUTP/Cycle_Data/Value2"/>
+        <sensor id="103" item_id="//ObjectRoot/ASUTP/Cycle_Data/Value3"/>
+    </sensors>
+    <events>
+        <event type="transaction" tag_Start="BdrvTransact_Route6_1_Start"
+               tag_1="BdrvTransact_Route6_1_Data1"
+               tag_2="BdrvTransact_Route6_1_Data2"
+               tag_3="BdrvTransact_Route6_1_Data3"
+               tag_4="BdrvTransact_Route6_1_Data4"/>
+
+        <event type="status" UU_id="101" tag="BdrvStatusSet_P1_Data"/>
+    </events>
+    <settings>
+        <ffc_id>23</ffc_id>
+        <measure_events_period>60000</measure_events_period>
+        <history_days>30</history_days>
+    </settings>
+</config>

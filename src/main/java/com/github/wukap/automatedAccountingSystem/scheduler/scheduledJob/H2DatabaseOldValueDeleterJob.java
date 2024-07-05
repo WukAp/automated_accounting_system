@@ -1,7 +1,7 @@
 package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 
+import com.github.wukap.automatedAccountingSystem.h2Database.OldNoteDeletable;
 import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
-import com.github.wukap.automatedAccountingSystem.ringBufferDatabase.OldNoteDeletable;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
