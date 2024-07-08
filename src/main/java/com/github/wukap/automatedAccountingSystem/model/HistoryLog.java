@@ -6,10 +6,6 @@ public record HistoryLog(@NonNull String id, @NonNull String tag, @NonNull Strin
 
     @Override
     public String toString() {
-        return "[" +
-                "id='" + id + '\'' +
-                ", tag='" + tag + '\'' +
-                ", value='" + value + '\'' +
-                ", timestamp='" + timestamp + '\'' +
-                ']';
-    }}
+        return "[" + "id='" + id + '\'' + ", tag='" + tag + '\'' + ", value='" + value + '\'' + ", timestamp='" + timestamp + '\'' + ']';
+    }
+}

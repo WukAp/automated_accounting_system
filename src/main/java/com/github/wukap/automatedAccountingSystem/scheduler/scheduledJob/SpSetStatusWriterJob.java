@@ -1,9 +1,9 @@
 package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 
-import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.BdrvDriver;
 import com.github.wukap.automatedAccountingSystem.h2Database.SpMsnStatusSetValueRepository;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsnStatusSetValue;
+import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
