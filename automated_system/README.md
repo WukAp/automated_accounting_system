@@ -30,7 +30,7 @@ path:
 * `curl http://localhost:2444/statistic/bufferedValueAmount`
 
 
-* `curl http://localhost:2444/statistic/bufferedValueProcen`
+* `curl http://localhost:2444/statistic/bufferedValueProcent`
 
 
 * `curl http://localhost:2444/statistic/isNetworkConnected`
