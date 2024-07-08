@@ -6,4 +6,6 @@ public interface BdrvValue {
     String getValue();
 
     String getId();
+
+    String getTag();
 }

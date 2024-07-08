@@ -3,6 +3,7 @@ package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 import com.github.wukap.automatedAccountingSystem.driver.opcDriver.OpcUaDriver;
 import com.github.wukap.automatedAccountingSystem.h2Database.SpMsnStatusSetValueRepository;
 import com.github.wukap.automatedAccountingSystem.h2Database.SpMsrValueRepository;
+import com.github.wukap.automatedAccountingSystem.h2Database.SpTransactionValueRepository;
 import com.github.wukap.automatedAccountingSystem.model.OpcValue;
 import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
 import com.github.wukap.automatedAccountingSystem.utils.MathUtils;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -27,20 +29,23 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     private final Executor virtualExecutor;
     private final SpMsrValueRepository spMsrValueRepository;
     private final SpMsnStatusSetValueRepository spMsnStatusSetValueRepository;
+    private final SpTransactionValueRepository spTransactionValueRepository;
     @Getter
     private final int delay;
     private final int sp_msr_value_delay;
     private final int sp_msn_status_value_delay;
     private final int sp_transaction_value_delay;
     private AtomicInteger currentDelay = new AtomicInteger(0);
+    private final Double TRANSACTION__START_VALUE = 1.0;
 
 
     @Autowired
-    public OpcReaderSchedulerJob(OpcUaDriver opcUaDriver, InputConfig config, SpMsrValueRepository spMsrValueRepository, SpMsnStatusSetValueRepository spMsnStatusSetValueRepository, @Value("${sp_msr_value_reading_in_seconds}") int spMsrValueInSeconds, @Value("${sp_msn_status_value_reading_in_seconds}") int spMsnStatusValueInSeconds, @Value("${sp_transaction_value_reading_in_seconds}") int spTransactionValueInSeconds) {
+    public OpcReaderSchedulerJob(OpcUaDriver opcUaDriver, InputConfig config, SpMsrValueRepository spMsrValueRepository, SpMsnStatusSetValueRepository spMsnStatusSetValueRepository, SpTransactionValueRepository spTransactionValueRepository, @Value("${sp_msr_value_reading_in_seconds}") int spMsrValueInSeconds, @Value("${sp_msn_status_value_reading_in_seconds}") int spMsnStatusValueInSeconds, @Value("${sp_transaction_value_reading_in_seconds}") int spTransactionValueInSeconds) {
         this.opcUaDriver = opcUaDriver;
         this.config = config;
         this.spMsrValueRepository = spMsrValueRepository;
         this.spMsnStatusSetValueRepository = spMsnStatusSetValueRepository;
+        this.spTransactionValueRepository = spTransactionValueRepository;
         this.sp_msr_value_delay = spMsrValueInSeconds;
         sp_msn_status_value_delay = spMsnStatusValueInSeconds;
         sp_transaction_value_delay = spTransactionValueInSeconds;
@@ -59,7 +64,9 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
                     virtualExecutor.execute(() -> this.readStatusSet(status));
                 }
             if (currentDelay.get() % sp_transaction_value_delay == 0) {
-
+                for (InputConfig.EventTransaction transaction : config.getEventTransactions()) {
+                    virtualExecutor.execute(() -> this.readTransaction(transaction));
+                }
             }
             currentDelay.incrementAndGet();
         } catch (Exception e) {
@@ -81,7 +88,7 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     private void readMsrValue(InputConfig.Sensor sensor) {
         OpcValue value = readValueByTag(sensor.getTag());
 
-        var bdrvValue = OpcValueToBdrvValueConverter.opcValueToSpMsrValueConverter(value, sensor.getId());
+        var bdrvValue = OpcValueToBdrvValueConverter.opcValueToSpMsrValueConverter(sensor.getTag(), value, sensor.getId());
         if (bdrvValue == null) {
             log.warn("Converted value from OPC UA with item_id: " + sensor.getTag() + " is null");
             return;
@@ -93,7 +100,7 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     private void readStatusSet(InputConfig.EventStatus status) {
         OpcValue value = readValueByTag(status.getTag());
 
-        var bdrvValue = OpcValueToBdrvValueConverter.opcValueToSpMsnStatusSetValueConverter(value, status.getUuId());
+        var bdrvValue = OpcValueToBdrvValueConverter.opcValueToSpMsnStatusSetValueConverter(status.getTag(), value, status.getUuId());
         if (bdrvValue == null) {
             log.warn("Converted value from OPC UA with item_id: " + status.getTag() + " is null");
             return;
@@ -102,7 +109,22 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
         log.info("Value from OPC UA with item_id: " + status.getTag() + " was saved");
     }
 
-    private void readTransactionValue(InputConfig.EventTransaction transaction) {
+    private void readTransaction(InputConfig.EventTransaction transaction) {
+        OpcValue valueStart = readValueByTag(transaction.getTagStart());
+        if (!Objects.equals(valueStart != null ? valueStart.getValue() : null, TRANSACTION__START_VALUE)) return;
+        OpcValue valueTag1 = readValueByTag(transaction.getTagStart());
+        if ((valueTag1 != null ? valueTag1.getValue() : null) == 1.0) {
+            OpcValue valueTag2 = readValueByTag(transaction.getTag2());
+            OpcValue valueTag3 = readValueByTag(transaction.getTag3());
+            OpcValue valueTag4 = readValueByTag(transaction.getTag4());
+            var bdrvValue = OpcValueToBdrvValueConverter.opcValueToSpTransactionValueConverter(transaction.getTagStart(), valueStart, valueTag1, valueTag2, valueTag3, valueTag4);
+            if (bdrvValue == null) {
+                log.warn("Converted value from OPC UA with item_id: " + transaction.getTagStart() + " is null");
+                return;
+            }
+            spTransactionValueRepository.save(bdrvValue);
+            log.info("Value from OPC UA with item_id: " + transaction.getTagStart() + " was saved");
+        }
 
     }
 

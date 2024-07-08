@@ -6,9 +6,6 @@ import com.github.wukap.automatedAccountingSystem.h2Database.SpMsrValueRepositor
 import com.github.wukap.automatedAccountingSystem.h2Database.SpTransactionValueRepository;
 import com.github.wukap.automatedAccountingSystem.model.HistoryLog;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
-import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsnStatusSetValue;
-import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
-import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpTransactionValue;
 import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
 import com.github.wukap.automatedAccountingSystem.utils.OpcValueToBdrvValueConverter;
 import lombok.Getter;
@@ -22,8 +19,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import static java.lang.Math.max;
@@ -72,37 +67,11 @@ public class StatisticService {
         writtenLogsQueue.add(transactionLog);
     }
 
-    public void addWrittenLog(SpMsrValue value) {
-        Optional<InputConfig.Sensor> currentSensor = config.getSensors().stream().filter(sensor -> sensor.getId().equals(value.getId())).findFirst();
-        if (currentSensor.isEmpty()) {
-            return;
-        }
-        addWrittenLog(new HistoryLog(value.getId(), currentSensor.get().getTag(), value.getValue(), value.getTime()));
-    }
-
-    public void addWrittenLog(SpTransactionValue value) {
-        for (InputConfig.EventTransaction eventTransaction : config.getEventTransactions()) {
-            for (Map.Entry<String, String> tag : eventTransaction.getTags().entrySet()) {
-                if (tag.getValue().equals(value.getId())) {
-                    addWrittenLog(new HistoryLog(value.getId(), tag.getKey(), value.getValue(), value.getTime()));
-                    return;
-                }
-            }
-        }
-    }
-
-    public void addWrittenLog(SpMsnStatusSetValue value) {
-        Optional<InputConfig.EventStatus> currentEvent = config.getEventStatuses().stream().filter(status -> status.getUuId().equals(value.getId())).findFirst();
-        if (currentEvent.isEmpty()) {
-            return;
-        }
-        addWrittenLog(new HistoryLog(value.getId(), currentEvent.get().getTag(), value.getValue(), value.getTime()));
-
-    }
-
     public void addWrittenLog(BdrvValue value) {
-        addWrittenLog(new HistoryLog(value.getId(), "unknown", value.getValue(), value.getTime()));
+
+        addWrittenLog(new HistoryLog(value.getId(), value.getTag(), value.getValue(), value.getTime()));
     }
+
 
     public void addThrownLog(HistoryLog transactionLog) {
         if (thrownLogsQueue.remainingCapacity() == 0) {
@@ -111,37 +80,9 @@ public class StatisticService {
         thrownLogsQueue.add(transactionLog);
     }
 
-    public void addThrownLog(SpMsrValue value) {
-        Optional<InputConfig.Sensor> currentSensor = config.getSensors().stream().filter(sensor -> sensor.getId().equals(value.getId())).findFirst();
-        String tag = "-";
-        if (!currentSensor.isEmpty()) {
-            tag = currentSensor.get().getTag();
-        }
-        addThrownLog(new HistoryLog(value.getId(), tag, value.getValue(), value.getTime()));
-    }
-
-    public void addThrownLog(SpTransactionValue value) {
-        for (InputConfig.EventTransaction eventTransaction : config.getEventTransactions()) {
-            for (Map.Entry<String, String> tag : eventTransaction.getTags().entrySet()) {
-                if (tag.getValue().equals(value.getId())) {
-                    addThrownLog(new HistoryLog(value.getId(), tag.getKey(), value.getValue(), value.getTime()));
-                    return;
-                }
-            }
-        }
-    }
-
-    public void addThrownLog(SpMsnStatusSetValue value) {
-        Optional<InputConfig.EventStatus> currentEvent = config.getEventStatuses().stream().filter(status -> status.getUuId().equals(value.getId())).findFirst();
-        if (currentEvent.isEmpty()) {
-            return;
-        }
-        addThrownLog(new HistoryLog(value.getId(), currentEvent.get().getTag(), value.getValue(), value.getTime()));
-
-    }
 
     public void addThrownLog(BdrvValue value) {
-        addThrownLog(new HistoryLog(value.getId(), "unknown", value.getValue(), value.getTime()));
+        addThrownLog(new HistoryLog(value.getId(), value.getTag(), value.getValue(), value.getTime()));
     }
 
 

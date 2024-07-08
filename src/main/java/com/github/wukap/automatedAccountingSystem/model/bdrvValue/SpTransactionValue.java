@@ -24,6 +24,8 @@ public class SpTransactionValue implements BdrvValue {
 
     @NonNull
     private String pMsrTime;
+    @NonNull
+    String tag;
 
     @Override
     public String getTime() {
@@ -32,11 +34,11 @@ public class SpTransactionValue implements BdrvValue {
 
     @Override
     public String getValue() {
-        return pInfoType + ":" + pTrnInfo;
+        return pTrnInfo;
     }
 
     @Override
     public String getId() {
-        return "-";
+        return pInfoType;
     }
 }

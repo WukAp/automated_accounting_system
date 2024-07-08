@@ -24,6 +24,8 @@ public class SpMsnStatusSetValue implements BdrvValue {
 
     @NonNull
     private String pSetTime;
+    @NonNull
+    String tag;
 
 
     @Override

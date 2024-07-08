@@ -2,7 +2,9 @@ package com.github.wukap.automatedAccountingSystem.utils;
 
 import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -12,9 +14,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class XmlConfigParserUtils {
@@ -54,15 +54,12 @@ public class XmlConfigParserUtils {
                 String type = eventElement.getAttribute("type");
                 switch (type) {
                     case "transaction": {
-                        Map<String, String> tags = new HashMap<>();
-                        NamedNodeMap attributes = eventElement.getAttributes();
-                        for (int l = 0; l < attributes.getLength(); l++) {
-                            Node attr = attributes.item(l);
-                            if (!attr.getNodeName().equals("type") && !attr.getNodeName().equals("UU_id")) {
-                                tags.put(attr.getNodeName(), attr.getNodeValue());
-                            }
-                        }
-                        transactions.add(new InputConfig.EventTransaction(type, tags));
+                        String tagStart = eventElement.getAttribute("tag_Start");
+                        String tag1 = eventElement.getAttribute("tag1");
+                        String tag2 = eventElement.getAttribute("tag2");
+                        String tag3 = eventElement.getAttribute("tag3");
+                        String tag4 = eventElement.getAttribute("tag4");
+                        transactions.add(new InputConfig.EventTransaction(type, tagStart, tag1, tag2, tag3, tag4));
                         break;
                     }
 

@@ -24,6 +24,9 @@ public class SpMsrValue implements BdrvValue {
 
     @NonNull
     private String pMsrTime;
+    @NonNull
+    String tag;
+
     @Override
     public String getTime() {
         return pMsrTime;
@@ -33,6 +36,7 @@ public class SpMsrValue implements BdrvValue {
     public String getValue() {
         return pMsrValue;
     }
+
     @Override
     public String getId() {
         return pMsdId;

@@ -1,9 +1,9 @@
 package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 
-import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.BdrvDriver;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
+import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,11 +25,10 @@ public abstract class BdrvWriterSchedulerJob<R extends JpaRepository<T, String>,
     @Override
     public void run() {
         try {
-            if (valueRepository.count() == 0) {
-                log.info("There is no " + getClass().getSimpleName() + "values to write");
+
+            if (isRepositoryEmpty()) {
                 return;
             }
-            ;
             for (T value : valueRepository.findAll()) {
                 log.info(value.toString() + " is going to be written");
                 boolean result = bdrvDriver.writeValue((SpMsrValue) value);
@@ -45,6 +44,14 @@ public abstract class BdrvWriterSchedulerJob<R extends JpaRepository<T, String>,
             log.error(e.getMessage());
         }
 
+    }
+
+    protected boolean isRepositoryEmpty() {
+        if (valueRepository.count() == 0) {
+            log.info("There is no values to write from " + this.getClass().getSimpleName());
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -1,9 +1,9 @@
 package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 
-import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import com.github.wukap.automatedAccountingSystem.driver.bdrvDriver.BdrvDriver;
 import com.github.wukap.automatedAccountingSystem.h2Database.SpMsrValueRepository;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
+import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,11 +26,10 @@ public class SpMsrValueWriterJob extends BdrvWriterSchedulerJob<SpMsrValueReposi
     @Override
     public void run() {
         try {
-            var value = valueRepository.findFirst();
-            if (value == null) {
-                log.info("There is no SpMsrValue to write");
+            if (isRepositoryEmpty()) {
                 return;
             }
+            var value = valueRepository.findFirst();
             log.info(value.toString() + " is going to be written");
             boolean result = false;
             try {
