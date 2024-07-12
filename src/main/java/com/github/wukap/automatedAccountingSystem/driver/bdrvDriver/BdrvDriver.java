@@ -10,33 +10,29 @@ import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsnStatusSet
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpTransactionValue;
 import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
 @Service
 public class BdrvDriver extends Driver<Object, BdrvQuery> {
-    @Autowired
-    @Qualifier("bdrvDataSource")
-    private HikariDataSource dataSource;
-    private ScheduledExecutorService executorService;
+    private final BdrvConnectionFactory connectionFactory;
     private final InputConfig inputConfig;
-    private final int dbConnectionTimeout;
 
     @Autowired
-    public BdrvDriver(InputConfig inputConfig, @Value("${bdrv.db.connectionTimeout}") int dbConnectionTimeout) {
+    public BdrvDriver(InputConfig inputConfig, BdrvConnectionInfo bdrvConnectionInfo) {
         this.inputConfig = inputConfig;
-        this.dbConnectionTimeout = dbConnectionTimeout;
+        connectionFactory = new BdrvConnectionFactory(bdrvConnectionInfo);
     }
 
 
@@ -46,11 +42,7 @@ public class BdrvDriver extends Driver<Object, BdrvQuery> {
     }
 
     public boolean isNetworkConnected() {
-        try {
-            return dataSource.getConnection().isValid(dbConnectionTimeout);
-        } catch (SQLException e) {
-            return false;
-        }
+        return connectionFactory.isNetworkConnected();
     }
 
     public boolean writeValue(SpMsrValue data) throws SQLException {
@@ -78,18 +70,38 @@ public class BdrvDriver extends Driver<Object, BdrvQuery> {
     public boolean writeWriteOnly(BdrvQuery query) throws SQLException {
         log.info("Try execute SQL: " + query.getQuery());
 
-        try (Connection connection = dataSource.getConnection()) {
+        try (Connection connection = connectionFactory.getActiveConnection()) {
             Statement statement = connection.createStatement();
             var result = statement.executeUpdate(query.getQuery());
 
             return true;
         } catch (SQLException e) {
-            log.info("SQL query execution failed: " + e.getMessage());
+            log.warn("SQL query execution failed: " + e.getMessage());
             throw e;
+        } catch (CannotGetJdbcConnectionException e) {
+            log.warn("Cannot get JDBC connection: " + e.getMessage());
         } catch (Exception e) {
-            log.info("SQL query execution failed: " + e.getMessage());
+            log.error("Exception while writing: " + e.getMessage());
         }
         return false;
     }
 
+    @AllArgsConstructor
+    @Getter
+    public static class BdrvConnectionInfo {
+        @NonNull
+        private String dbUrl;
+        @NonNull
+        private String dbUsername;
+        @NonNull
+        private String dbPassword;
+        @NonNull
+        private int dbConnectionTimeout;
+        @NonNull
+        private int dbMaxLifetime;
+        @NonNull
+        private int dbMaximumPoolSize;
+        @NonNull
+        private int dbMinimumIdle;
+    }
 }

@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,14 +29,6 @@ public class OpcUaDriver extends Driver<OpcValue, Object> {
     @Autowired
     public OpcUaDriver(OpcUaDriver.OpcUaServerConnectionInfo connectionInfo, @Value("${opc.db.connection.timeout}") int connectionTimeout) {
         this.connectionFactory = new ConnectionFactoryImpl(connectionTimeout, connectionInfo);
-    }
-
-    public List<OpcValue> readNodes(List<String> nodesToRead) throws ServiceResultException {
-        List<OpcValue> values = new ArrayList<>();
-        for (String node : nodesToRead) {
-            values.add(read(node));
-        }
-        return values;
     }
 
     @Override

@@ -17,7 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.util.HashMap;
 import java.util.Map;
 
-@EnableJpaRepositories(basePackages = "com.github.wukap.automatedAccountingSystem", entityManagerFactoryRef = "h2EntityManager", transactionManagerRef = "h2TransactionManager")
+@EnableJpaRepositories(basePackages = "com.github.wukap.automatedAccountingSystem.h2Database", entityManagerFactoryRef = "h2EntityManager", transactionManagerRef = "h2TransactionManager")
 
 @Configuration
 public class H2DatabaseConfig {
@@ -34,6 +34,11 @@ public class H2DatabaseConfig {
     @Value("${spring.datasource.password}")
     private String dbPassword;
 
+    @Value("${spring.datasource.maximumPoolSize}")
+    private int dbMaximumPoolSize;
+    @Value("${spring.datasource.minimumIdle}")
+    private int dbMinimumIdle;
+
 
     @Bean
     public HikariDataSource h2DataSource() {
@@ -41,8 +46,8 @@ public class H2DatabaseConfig {
         dataSource.setJdbcUrl(dbUrl);
         dataSource.setUsername(dbUsername);
         dataSource.setPassword(dbPassword);
-        dataSource.setMinimumIdle(5);
-        dataSource.setMaximumPoolSize(20);
+        dataSource.setMinimumIdle(dbMinimumIdle);
+        dataSource.setMaximumPoolSize(dbMaximumPoolSize);
 
         return dataSource;
     }

@@ -1,8 +1,11 @@
 package com.github.wukap.automatedAccountingSystem.statistic;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class StatisticController {
@@ -10,34 +13,39 @@ public class StatisticController {
     @Autowired
     private StatisticPrettyPrinterService statisticPrettyPrinterService;
 
+    @Async
     @GetMapping("/statistic")
-    public String prettyPrintStatistic() {
-        return statisticPrettyPrinterService.prettyPrintStatistic();
+    public CompletableFuture<String> prettyPrintStatistic() {
+        return CompletableFuture.completedFuture(statisticPrettyPrinterService.prettyPrintStatistic());
     }
 
+    @Async
     @GetMapping("/statistic/bufferedValueAmount")
-    public String prettyPrintStatisticBufferedValueAmount() {
-        return statisticPrettyPrinterService.prettyPrintStatisticBufferedValueAmount();
+    public CompletableFuture<String> prettyPrintStatisticBufferedValueAmount() {
+        return CompletableFuture.completedFuture(statisticPrettyPrinterService.prettyPrintStatisticBufferedValueAmount());
     }
 
+    @Async
     @GetMapping("/statistic/bufferedValueProcent")
-    public String prettyPrintStatisticBufferedValueProcentOfFilled() {
-        return statisticPrettyPrinterService.prettyPrintStatisticBufferedValueProcentOfFilled();
+    public CompletableFuture<String> prettyPrintStatisticBufferedValueProcentOfFilled() {
+        return CompletableFuture.completedFuture(statisticPrettyPrinterService.prettyPrintStatisticBufferedValueProcentOfFilled());
     }
 
+    @Async
     @GetMapping("/statistic/isNetworkConnected")
-    public String isNetworkConnected() {
-        return statisticPrettyPrinterService.prettyPrintStatisticIsNetworkConnected();
+    public CompletableFuture<String> isNetworkConnected() {
+        return CompletableFuture.completedFuture(statisticPrettyPrinterService.prettyPrintStatisticIsNetworkConnected());
     }
 
+    @Async
     @GetMapping("/statistic/written")
-    public String getBufferedValueAmount() {
-        return statisticPrettyPrinterService.prettyPrintStatisticWrittenLogs();
+    public CompletableFuture<String> getBufferedValueAmount() {
+        return CompletableFuture.completedFuture(statisticPrettyPrinterService.prettyPrintStatisticWrittenLogs());
     }
 
+    @Async
     @GetMapping("/statistic/thrown")
-    public String getThrownLogs() {
-        return statisticPrettyPrinterService.prettyPrintStatisticThrownLogs();
+    public CompletableFuture<String> getThrownLogs() {
+        return CompletableFuture.completedFuture(statisticPrettyPrinterService.prettyPrintStatisticThrownLogs());
     }
-
 }

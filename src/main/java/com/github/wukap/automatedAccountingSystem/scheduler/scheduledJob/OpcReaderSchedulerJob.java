@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class OpcReaderSchedulerJob implements ScheduledJob {
     private final OpcUaDriver opcUaDriver;
     private final InputConfig config;
-    private final Executor virtualExecutor;
+    private final Executor executor;
     private final SpMsrValueRepository spMsrValueRepository;
     private final SpMsnStatusSetValueRepository spMsnStatusSetValueRepository;
     private final SpTransactionValueRepository spTransactionValueRepository;
@@ -35,8 +35,7 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     private final int sp_msr_value_delay;
     private final int sp_msn_status_value_delay;
     private final int sp_transaction_value_delay;
-    private AtomicInteger currentDelay = new AtomicInteger(0);
-    private final Double TRANSACTION__START_VALUE = 1.0;
+    private AtomicInteger currentTimeCounter = new AtomicInteger(0);
 
 
     @Autowired
@@ -49,26 +48,26 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
         this.sp_msr_value_delay = spMsrValueInSeconds;
         sp_msn_status_value_delay = spMsnStatusValueInSeconds;
         sp_transaction_value_delay = spTransactionValueInSeconds;
-        this.virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();
+        this.executor = Executors.newFixedThreadPool(3);
         this.delay = MathUtils.findGCD(sp_msr_value_delay, sp_msn_status_value_delay, sp_transaction_value_delay);
     }
 
     @Override
     public void run() {
+        int timeInThisIteration = currentTimeCounter.getAndAdd(delay);
         try {
-            if (currentDelay.get() % sp_msr_value_delay == 0) for (InputConfig.Sensor sensor : config.getSensors()) {
-                virtualExecutor.execute(() -> this.readMsrValue(sensor));
+            if (timeInThisIteration % sp_msr_value_delay == 0) for (InputConfig.Sensor sensor : config.getSensors()) {
+                executor.execute(() -> this.readMsrValue(sensor));
             }
-            if (currentDelay.get() % sp_msn_status_value_delay == 0)
+            if (timeInThisIteration % sp_msn_status_value_delay == 0)
                 for (InputConfig.EventStatus status : config.getEventStatuses()) {
-                    virtualExecutor.execute(() -> this.readStatusSet(status));
+                    executor.execute(() -> this.readStatusSet(status));
                 }
-            if (currentDelay.get() % sp_transaction_value_delay == 0) {
+            if (timeInThisIteration % sp_transaction_value_delay == 0) {
                 for (InputConfig.EventTransaction transaction : config.getEventTransactions()) {
-                    virtualExecutor.execute(() -> this.readTransaction(transaction));
+                    executor.execute(() -> this.readTransaction(transaction));
                 }
             }
-            currentDelay.incrementAndGet();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -111,7 +110,8 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
 
     private void readTransaction(InputConfig.EventTransaction transaction) {
         OpcValue valueStart = readValueByTag(transaction.getTagStart());
-        if (!Objects.equals(valueStart != null ? valueStart.getValue() : null, TRANSACTION__START_VALUE)) return;
+        Double TRANSACTION_START_VALUE = 1.0;
+        if (!Objects.equals(valueStart != null ? valueStart.getValue() : null, TRANSACTION_START_VALUE)) return;
         OpcValue valueTag1 = readValueByTag(transaction.getTagStart());
         if ((valueTag1 != null ? valueTag1.getValue() : null) == 1.0) {
             OpcValue valueTag2 = readValueByTag(transaction.getTag2());
@@ -136,7 +136,7 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
             log.error(String.valueOf(e));
             return null;
         }
-        log.info("Value from OPC UA with item_id: " + tag + " was read");
+        log.info("Value from OPC UA with item_id: " + tag + " was read ");
         if (value == null) {
             log.warn("Value from OPC UA with item_id: " + tag + " is null");
             return null;
