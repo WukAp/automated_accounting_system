@@ -3,10 +3,12 @@ package com.github.wukap.automatedAccountingSystem.driver.bdrvDriver;
 import com.github.wukap.automatedAccountingSystem.driver.opcDriver.ConnectionFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
+@Slf4j
 public class BdrvConnectionFactory implements ConnectionFactory<BdrvDriver.BdrvConnectionInfo, Connection> {
 
     private final BdrvDriver.BdrvConnectionInfo bdrvConnectionInfo;
@@ -37,20 +39,26 @@ public class BdrvConnectionFactory implements ConnectionFactory<BdrvDriver.BdrvC
 
     public boolean isNetworkConnected() {
         initHikariDataSourceIfNotExist();
+        if (dataSource == null) return false;
         try (Connection connection = dataSource.getConnection()) {
             if (connection.isValid(bdrvConnectionInfo.getDbConnectionTimeout())) {
                 return true;
             } else {
                 return false;
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return false;
         }
     }
 
     private void initHikariDataSourceIfNotExist() {
+
         if (!isInit) {
-            initHikariDataSource();
+            try {
+                initHikariDataSource();
+            } catch (Exception e) {
+                log.error("Can't init HikariDataSource", e);
+            }
             isInit = true;
         }
     }

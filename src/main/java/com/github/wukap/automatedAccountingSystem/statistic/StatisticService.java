@@ -50,10 +50,15 @@ public class StatisticService {
         if (lastValue.isEmpty()) {
             return "0 days of " + config.getSettings().getHistoryDays() + " days";
         }
-        ZonedDateTime lastTime = OpcValueToBdrvValueConverter.formattedStringToZonedDateTimeConverter(lastValue.get().getTime());
-        long daysPassed = ChronoUnit.DAYS.between(lastTime.toLocalDate(), LocalDate.now());
+        try {
+            ZonedDateTime lastTime = OpcValueToBdrvValueConverter.formattedStringToZonedDateTimeConverter(lastValue.get().getTime());
+            long daysPassed = ChronoUnit.DAYS.between(lastTime.toLocalDate(), LocalDate.now());
+            int eps = 100;
+            return max((daysPassed * 100 * eps) / config.getSettings().getHistoryDays() / (double) eps, 0) + "% (" + daysPassed + " days of " + config.getSettings().getHistoryDays() + " days)";
+        } catch (Exception e) {
+            return "Error: cannot parse the time. The oldest value is from " + lastValue.get().getTime() + "(? days of " + config.getSettings().getHistoryDays() + " days)";
+        }
 
-        return max((daysPassed * 100.0) / config.getSettings().getHistoryDays(), 0) + "%" + " of " + config.getSettings().getHistoryDays() + " days";
     }
 
     public boolean isNetworkConnected() {

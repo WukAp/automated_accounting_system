@@ -41,6 +41,6 @@ public class StatisticPrettyPrinterService {
     }
 
     public String prettyPrintStatisticIsNetworkConnected() {
-        return (statisticService.isNetworkConnected() ? "Network connected" : "Network not connected") + "\n";
+        return (statisticService.isNetworkConnected() ? "Connection available" : "Connection refused") + "\n";
     }
 }
