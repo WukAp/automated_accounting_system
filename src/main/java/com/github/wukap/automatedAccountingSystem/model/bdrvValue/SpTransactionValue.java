@@ -6,6 +6,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.sql.Date;
+import java.util.Objects;
+
 @Entity
 @Data
 @RequiredArgsConstructor
@@ -23,13 +26,26 @@ public class SpTransactionValue implements BdrvValue {
     private String pTrnInfo;
 
     @NonNull
-    private String pMsrTime;
+    private String pMsgTime;
     @NonNull
     String tag;
 
+    @NonNull
+    Date timeWhenWritten;
+
+    public SpTransactionValue(
+                              @NonNull String pInfoType,
+                              @NonNull String pTrnInfo, @NonNull String pMsgTime, @NonNull String tag) {
+        this.pInfoType = pInfoType;
+        this.pTrnInfo = pTrnInfo;
+        this.pMsgTime = pMsgTime;
+        this.tag = tag;
+        this.timeWhenWritten = new Date(System.currentTimeMillis());
+    }
+
     @Override
     public String getTime() {
-        return pMsrTime;
+        return pMsgTime;
     }
 
     @Override
@@ -40,5 +56,18 @@ public class SpTransactionValue implements BdrvValue {
     @Override
     public String getId() {
         return pInfoType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SpTransactionValue that = (SpTransactionValue) o;
+        return Objects.equals(pInfoType, that.pInfoType) && Objects.equals(pTrnInfo, that.pTrnInfo) && Objects.equals(pMsgTime, that.pMsgTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pInfoType, pTrnInfo, pMsgTime);
     }
 }

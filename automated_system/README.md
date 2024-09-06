@@ -39,7 +39,7 @@ path:
 * `curl http://localhost:2444/statistic/written`
 
 
-* `curl http://localhost:2444/statistic/thrown`
+* `curl `http://localhost:2444/statistic`/thrown`
 
 
 

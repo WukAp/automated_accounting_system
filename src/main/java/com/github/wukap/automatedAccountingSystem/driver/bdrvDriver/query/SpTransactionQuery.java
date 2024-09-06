@@ -14,6 +14,6 @@ public class SpTransactionQuery extends BdrvQuery {
 
     @Override
     public String getQuery() {
-        return "exec sp_transaction @p_ffc_id=" + this.ffcId + ", @p_info_type=" + data.getPInfoType() + ", @p_trn_indo=" + data.getPTrnInfo() + ", @p_msg_time='" + data.getPMsrTime() + "'";
+        return "exec sp_transaction @p_ffc_id=" + this.ffcId + ", @p_info_type=" + data.getPInfoType() + ", @p_trn_info=" + data.getPTrnInfo() + ", @p_msg_time='" + data.getPMsgTime() + "'";
     }
 }

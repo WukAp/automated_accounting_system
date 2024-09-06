@@ -1,5 +1,6 @@
 package com.github.wukap.automatedAccountingSystem.h2Database;
 
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpMsrValue;
 import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpTransactionValue;
 import com.github.wukap.automatedAccountingSystem.utils.OpcValueToBdrvValueConverter;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +17,7 @@ public interface SpTransactionValueRepository extends JpaRepository<SpTransactio
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM SpTransactionValue v WHERE v.pMsrTime < ?1")
+    @Query("DELETE FROM SpTransactionValue v WHERE v.timeWhenWritten < ?1")
     public void deleteOldNotesByLastPossibleTimestamp(String lastPossibleTimeStamp);
 
     default void deleteOldNotesByLifeTime(int lifeTimeInDays) {

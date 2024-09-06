@@ -23,6 +23,10 @@ public class BdrvConnectionFactory implements ConnectionFactory<BdrvDriver.BdrvC
     @Override
     public Connection getActiveConnection() throws SQLException {
         initHikariDataSourceIfNotExist();
+        if(!isInit) {
+            log.warn("Can't connect to database");
+            throw new IllegalStateException("Can't init HikariDataSource");
+        }
         // Implement logic to get active connection using HikariDataSource
         return dataSource.getConnection(); // Placeholder, implement as needed
     }
@@ -56,10 +60,10 @@ public class BdrvConnectionFactory implements ConnectionFactory<BdrvDriver.BdrvC
         if (!isInit) {
             try {
                 initHikariDataSource();
+                isInit = true;
             } catch (Exception e) {
                 log.error("Can't init HikariDataSource", e);
             }
-            isInit = true;
         }
     }
 
@@ -76,7 +80,6 @@ public class BdrvConnectionFactory implements ConnectionFactory<BdrvDriver.BdrvC
             setConnectionTimeout(bdrvConnectionInfo.getDbConnectionTimeout());
             setConnectionTestQuery("SELECT 1");
         }});
-
         this.dataSource = dataSource;
     }
 }

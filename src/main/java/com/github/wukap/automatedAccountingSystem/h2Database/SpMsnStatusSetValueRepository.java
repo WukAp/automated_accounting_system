@@ -16,7 +16,7 @@ public interface SpMsnStatusSetValueRepository extends JpaRepository<SpMsnStatus
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM SpMsnStatusSetValue v WHERE v.pSetTime < ?1")
+    @Query("DELETE FROM SpMsnStatusSetValue v WHERE v.timeWhenWritten < ?1")
     public void deleteOldNotesByLastPossibleTimestamp(String lastPossibleTimeStamp);
 
     default void deleteOldNotesByLifeTime(int lifeTimeInDays) {

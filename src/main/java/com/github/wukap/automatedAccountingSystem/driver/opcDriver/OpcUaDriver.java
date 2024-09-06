@@ -36,10 +36,12 @@ public class OpcUaDriver extends Driver<OpcValue, Object> {
         try {
             String opcUaTagName = getConnectionFactory().getActiveConnectionInfo().getServerPrefix() + tagName;
             var readValue = new ReadValueId(NodeId.get(IdType.String, getConnectionFactory().getActiveConnectionInfo().getNamespace(), opcUaTagName), Attributes.Value, null, null);
+
             ReadRequest req = new ReadRequest(null, 0.0, TimestampsToReturn.Both, List.of(readValue).toArray(new ReadValueId[0]));
             DataValue res = connectionFactory.getActiveConnection().Read(req).getResults()[0];
             if (res.isNull()) return null;
             Double value = Double.valueOf(res.getValue().toString());
+            log.info("value: " + res+" from tag: " + tagName+" was read");
             Instant sourceTime = Instant.ofEpochMilli(res.getSourceTimestamp().getTimeInMillis());
             OpcValue.Quality quality = res.getStatusCode().isGood() ? OpcValue.Quality.GOOD : OpcValue.Quality.BAD;
             return new OpcValue(sourceTime, value, quality);

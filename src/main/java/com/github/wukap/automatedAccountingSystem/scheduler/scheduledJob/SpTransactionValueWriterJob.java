@@ -6,9 +6,12 @@ import com.github.wukap.automatedAccountingSystem.model.bdrvValue.SpTransactionV
 import com.github.wukap.automatedAccountingSystem.statistic.StatisticService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
+
+//@Component
 @Getter
 public class SpTransactionValueWriterJob extends BdrvWriterSchedulerJob<SpTransactionValueRepository, SpTransactionValue> {
     private final int delay;

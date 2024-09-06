@@ -6,6 +6,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.sql.Date;
+import java.util.Objects;
+
 @Entity
 @Data
 @RequiredArgsConstructor
@@ -24,8 +27,22 @@ public class SpMsrValue implements BdrvValue {
 
     @NonNull
     private String pMsrTime;
+
     @NonNull
     String tag;
+
+    @NonNull
+    Date timeWhenWritten;
+
+    public SpMsrValue(
+                      @NonNull String pMsrValue,
+                      @NonNull String pMsdId, @NonNull String pMsrTime, @NonNull String tag) {
+        this.pMsrValue = pMsrValue;
+        this.pMsdId = pMsdId;
+        this.pMsrTime = pMsrTime;
+        this.tag = tag;
+        this.timeWhenWritten = new Date(System.currentTimeMillis());
+    }
 
     @Override
     public String getTime() {
@@ -40,5 +57,18 @@ public class SpMsrValue implements BdrvValue {
     @Override
     public String getId() {
         return pMsdId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SpMsrValue that = (SpMsrValue) o;
+        return Objects.equals(pMsrValue, that.pMsrValue) && Objects.equals(pMsdId, that.pMsdId) && Objects.equals(pMsrTime, that.pMsrTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pMsrValue, pMsdId, pMsrTime);
     }
 }

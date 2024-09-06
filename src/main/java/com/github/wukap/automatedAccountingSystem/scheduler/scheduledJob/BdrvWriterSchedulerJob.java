@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.sql.SQLException;
+
 @Slf4j
 
 public abstract class BdrvWriterSchedulerJob<R extends JpaRepository<T, String>, T extends BdrvValue> implements ScheduledJob {
@@ -31,11 +33,19 @@ public abstract class BdrvWriterSchedulerJob<R extends JpaRepository<T, String>,
             }
             for (T value : valueRepository.findAll()) {
                 log.info(value.toString() + " is going to be written");
-                boolean result = bdrvDriver.writeValue((SpMsrValue) value);
+                boolean result = false;
+                try {
+                    result = bdrvDriver.writeValue( value);
+                } catch (SQLException e) {
+                    log.error("Can't write " + value + " to BDRV because of SQL exception");
+                    valueRepository.delete(value);
+                    statisticService.addThrownLog(value);
+                }
+
                 if (result) {
                     log.info(value + " was successfully written");
                     valueRepository.delete(value);
-                    statisticService.addWrittenLog((SpMsrValue) value);
+                    statisticService.addWrittenLog(value);
                 } else {
                     log.warn(value + " was not written, something went wrong");
                 }

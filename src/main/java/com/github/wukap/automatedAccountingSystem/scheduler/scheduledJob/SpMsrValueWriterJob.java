@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Getter
@@ -29,27 +30,30 @@ public class SpMsrValueWriterJob extends BdrvWriterSchedulerJob<SpMsrValueReposi
             if (isRepositoryEmpty()) {
                 return;
             }
-            var value = valueRepository.findFirst();
-            log.info(value.toString() + " is going to be written");
-            boolean result = false;
-            try {
-                result = bdrvDriver.writeValue((SpMsrValue) value);
-            } catch (SQLException e) {
-                log.error("Can't write " + value + " to BDRV because of SQL exception");
-                valueRepository.delete(value);
-                statisticService.addThrownLog((SpMsrValue) value);
-            }
-            if (result) {
-                log.info(value + " was successfully written");
-                valueRepository.delete(value);
-                statisticService.addWrittenLog((SpMsrValue) value);
-            } else {
-                log.warn(value + " was not written, something went wrong");
+            List<SpMsrValue> values = valueRepository.findMinTimeForEachMsdId();
+            for (SpMsrValue value : values) {
+                log.info(value.toString() + " is going to be written");
+                boolean result = false;
+                try {
+                    result = bdrvDriver.writeValue((SpMsrValue) value);
+                } catch (SQLException e) {
+                    log.error("Can't write " + value + " to BDRV because of SQL exception");
+                    valueRepository.delete(value);
+                    statisticService.addThrownLog((SpMsrValue) value);
+                }
+                if (result) {
+                    log.info(value + " was successfully written");
+                    valueRepository.delete(value);
+                    statisticService.addWrittenLog((SpMsrValue) value);
+                } else {
+                    log.warn(value + " was not written, something went wrong");
+                }
             }
 
         } catch (Exception e) {
             log.error(e.getMessage());
         }
+
 
     }
 

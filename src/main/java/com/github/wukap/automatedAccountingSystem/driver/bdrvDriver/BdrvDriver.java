@@ -57,7 +57,16 @@ public class BdrvDriver extends Driver<Object, BdrvQuery> {
         return write(new SpMsnStatusSetQuery(data, inputConfig.getSettings().getFfcId()));
     }
 
-    public boolean writeValue(BdrvValue data) {
+    public boolean writeValue(BdrvValue data) throws SQLException {
+        if(data instanceof SpMsrValue) {
+            return writeValue((SpMsrValue) data);
+        }
+        if(data instanceof SpTransactionValue) {
+            return writeValue((SpTransactionValue) data);
+        }
+        if(data instanceof SpMsnStatusSetValue) {
+            return writeValue((SpMsnStatusSetValue) data);
+        }
         throw new UnsupportedOperationException();
     }
 

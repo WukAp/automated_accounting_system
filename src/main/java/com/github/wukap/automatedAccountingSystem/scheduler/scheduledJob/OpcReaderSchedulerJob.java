@@ -1,10 +1,12 @@
 package com.github.wukap.automatedAccountingSystem.scheduler.scheduledJob;
 
 import com.github.wukap.automatedAccountingSystem.driver.opcDriver.OpcUaDriver;
+import com.github.wukap.automatedAccountingSystem.h2Database.LastValuesHashCodeRepository;
 import com.github.wukap.automatedAccountingSystem.h2Database.SpMsnStatusSetValueRepository;
 import com.github.wukap.automatedAccountingSystem.h2Database.SpMsrValueRepository;
 import com.github.wukap.automatedAccountingSystem.h2Database.SpTransactionValueRepository;
 import com.github.wukap.automatedAccountingSystem.model.OpcValue;
+import com.github.wukap.automatedAccountingSystem.model.bdrvValue.BdrvValue;
 import com.github.wukap.automatedAccountingSystem.model.config.InputConfig;
 import com.github.wukap.automatedAccountingSystem.utils.MathUtils;
 import com.github.wukap.automatedAccountingSystem.utils.OpcValueToBdrvValueConverter;
@@ -15,11 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -36,10 +39,11 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     private final int sp_msn_status_value_delay;
     private final int sp_transaction_value_delay;
     private AtomicInteger currentTimeCounter = new AtomicInteger(0);
-
+    private final LastValuesHashCodeRepository lastValuesHashCodeRepository;
+    Map<String, Integer> lastValues;
 
     @Autowired
-    public OpcReaderSchedulerJob(OpcUaDriver opcUaDriver, InputConfig config, SpMsrValueRepository spMsrValueRepository, SpMsnStatusSetValueRepository spMsnStatusSetValueRepository, SpTransactionValueRepository spTransactionValueRepository, @Value("${sp_msr_value_reading_in_seconds}") int spMsrValueInSeconds, @Value("${sp_msn_status_value_reading_in_seconds}") int spMsnStatusValueInSeconds, @Value("${sp_transaction_value_reading_in_seconds}") int spTransactionValueInSeconds) {
+    public OpcReaderSchedulerJob(OpcUaDriver opcUaDriver, InputConfig config, SpMsrValueRepository spMsrValueRepository, SpMsnStatusSetValueRepository spMsnStatusSetValueRepository, SpTransactionValueRepository spTransactionValueRepository, @Value("${sp_msr_value_reading_in_seconds}") int spMsrValueInSeconds, @Value("${sp_msn_status_value_reading_in_seconds}") int spMsnStatusValueInSeconds, @Value("${sp_transaction_value_reading_in_seconds}") int spTransactionValueInSeconds, LastValuesHashCodeRepository lastValuesHashCodeRepository) {
         this.opcUaDriver = opcUaDriver;
         this.config = config;
         this.spMsrValueRepository = spMsrValueRepository;
@@ -48,6 +52,7 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
         this.sp_msr_value_delay = spMsrValueInSeconds;
         sp_msn_status_value_delay = spMsnStatusValueInSeconds;
         sp_transaction_value_delay = spTransactionValueInSeconds;
+        this.lastValuesHashCodeRepository = lastValuesHashCodeRepository;
         this.executor = Executors.newFixedThreadPool(3);
         this.delay = MathUtils.findGCD(sp_msr_value_delay, sp_msn_status_value_delay, sp_transaction_value_delay);
     }
@@ -56,6 +61,7 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     public void run() {
         int timeInThisIteration = currentTimeCounter.getAndAdd(delay);
         try {
+            lastValues = lastValuesHashCodeRepository.findAll().stream().collect(Collectors.toMap(LastValuesHashCodeRepository.LastValuesHashCode::getTag, LastValuesHashCodeRepository.LastValuesHashCode::getHash));
             if (timeInThisIteration % sp_msr_value_delay == 0) for (InputConfig.Sensor sensor : config.getSensors()) {
                 executor.execute(() -> this.readMsrValue(sensor));
             }
@@ -63,11 +69,11 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
                 for (InputConfig.EventStatus status : config.getEventStatuses()) {
                     executor.execute(() -> this.readStatusSet(status));
                 }
-            if (timeInThisIteration % sp_transaction_value_delay == 0) {
-                for (InputConfig.EventTransaction transaction : config.getEventTransactions()) {
-                    executor.execute(() -> this.readTransaction(transaction));
-                }
-            }
+//            if (timeInThisIteration % sp_transaction_value_delay == 0) {
+//                for (InputConfig.EventTransaction transaction : config.getEventTransactions()) {
+//                    executor.execute(() -> this.readTransaction(transaction));
+//                }
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,14 +92,24 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
 
     private void readMsrValue(InputConfig.Sensor sensor) {
         OpcValue value = readValueByTag(sensor.getTag());
+        if (value == null) {
+            log.warn("Value from OPC UA with item_id: " + sensor.getTag() + " is null");
+            return;
+        }
 
         var bdrvValue = OpcValueToBdrvValueConverter.opcValueToSpMsrValueConverter(sensor.getTag(), value, sensor.getId());
         if (bdrvValue == null) {
             log.warn("Converted value from OPC UA with item_id: " + sensor.getTag() + " is null");
             return;
         }
+        if (lastValues.containsKey(sensor.getTag()) && Objects.equals(lastValues.get(sensor.getTag()), bdrvValue.hashCode())) {
+            log.info("Value from OPC UA with item_id: " + sensor.getTag() + " was skipped");
+            return;
+        }
+        lastValuesHashCodeRepository.save(new LastValuesHashCodeRepository.LastValuesHashCode(sensor.getTag(), bdrvValue.hashCode()));
         spMsrValueRepository.save(bdrvValue);
         log.info("Value from OPC UA with item_id: " + sensor.getTag() + " was saved");
+
     }
 
     private void readStatusSet(InputConfig.EventStatus status) {
@@ -104,6 +120,11 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
             log.warn("Converted value from OPC UA with item_id: " + status.getTag() + " is null");
             return;
         }
+        if (lastValues.containsKey(status.getTag()) && Objects.equals(lastValues.get(status.getTag()), bdrvValue.hashCode())) {
+            log.info("Value from OPC UA with item_id: " + status.getTag() + " was skipped");
+            return;
+        }
+        lastValuesHashCodeRepository.save(new LastValuesHashCodeRepository.LastValuesHashCode(status.getTag(), bdrvValue.hashCode()));
         spMsnStatusSetValueRepository.save(bdrvValue);
         log.info("Value from OPC UA with item_id: " + status.getTag() + " was saved");
     }
@@ -122,6 +143,11 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
                 log.warn("Converted value from OPC UA with item_id: " + transaction.getTagStart() + " is null");
                 return;
             }
+            if (lastValues.containsKey(transaction.getTagStart()) && Objects.equals(lastValues.get(transaction.getTagStart()), bdrvValue.hashCode())) {
+                log.info("Value from OPC UA with item_id: " + transaction.getTagStart() + " was skipped");
+                return;
+            }
+            lastValuesHashCodeRepository.save(new LastValuesHashCodeRepository.LastValuesHashCode(transaction.getTagStart(), bdrvValue.hashCode()));
             spTransactionValueRepository.save(bdrvValue);
             log.info("Value from OPC UA with item_id: " + transaction.getTagStart() + " was saved");
         }
@@ -131,6 +157,7 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     private OpcValue readValueByTag(String tag) {
         OpcValue value = null;
         try {
+            log.info("Try read value from OPC UA with item_id: " + tag);
             value = opcUaDriver.read(tag);
         } catch (ServiceResultException e) {
             log.error(String.valueOf(e));
