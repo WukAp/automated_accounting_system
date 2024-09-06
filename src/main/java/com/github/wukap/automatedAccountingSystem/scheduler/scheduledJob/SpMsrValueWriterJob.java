@@ -32,7 +32,7 @@ public class SpMsrValueWriterJob extends BdrvWriterSchedulerJob<SpMsrValueReposi
             }
             List<SpMsrValue> values = valueRepository.findMinTimeForEachMsdId();
             for (SpMsrValue value : values) {
-                log.info(value.toString() + " is going to be written");
+                log.debug(value.toString() + " is going to be written");
                 boolean result = false;
                 try {
                     result = bdrvDriver.writeValue((SpMsrValue) value);

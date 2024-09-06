@@ -43,7 +43,15 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     Map<String, Integer> lastValues;
 
     @Autowired
-    public OpcReaderSchedulerJob(OpcUaDriver opcUaDriver, InputConfig config, SpMsrValueRepository spMsrValueRepository, SpMsnStatusSetValueRepository spMsnStatusSetValueRepository, SpTransactionValueRepository spTransactionValueRepository, @Value("${sp_msr_value_reading_in_seconds}") int spMsrValueInSeconds, @Value("${sp_msn_status_value_reading_in_seconds}") int spMsnStatusValueInSeconds, @Value("${sp_transaction_value_reading_in_seconds}") int spTransactionValueInSeconds, LastValuesHashCodeRepository lastValuesHashCodeRepository) {
+    public OpcReaderSchedulerJob(OpcUaDriver opcUaDriver, InputConfig config,
+                                 SpMsrValueRepository spMsrValueRepository,
+                                 SpMsnStatusSetValueRepository spMsnStatusSetValueRepository,
+                                 SpTransactionValueRepository spTransactionValueRepository,
+                                 @Value("${sp_msr_value_reading_in_seconds}") int spMsrValueInSeconds,
+                                 @Value("${sp_msn_status_value_reading_in_seconds}") int spMsnStatusValueInSeconds,
+                                 @Value("${sp_transaction_value_reading_in_seconds}")
+                                 int spTransactionValueInSeconds,
+                                 LastValuesHashCodeRepository lastValuesHashCodeRepository) {
         this.opcUaDriver = opcUaDriver;
         this.config = config;
         this.spMsrValueRepository = spMsrValueRepository;
@@ -61,7 +69,8 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     public void run() {
         int timeInThisIteration = currentTimeCounter.getAndAdd(delay);
         try {
-            lastValues = lastValuesHashCodeRepository.findAll().stream().collect(Collectors.toMap(LastValuesHashCodeRepository.LastValuesHashCode::getTag, LastValuesHashCodeRepository.LastValuesHashCode::getHash));
+            lastValues =
+                    lastValuesHashCodeRepository.findAll().stream().collect(Collectors.toMap(LastValuesHashCodeRepository.LastValuesHashCode::getTag, LastValuesHashCodeRepository.LastValuesHashCode::getHash));
             if (timeInThisIteration % sp_msr_value_delay == 0) for (InputConfig.Sensor sensor : config.getSensors()) {
                 executor.execute(() -> this.readMsrValue(sensor));
             }
@@ -97,16 +106,19 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
             return;
         }
 
-        var bdrvValue = OpcValueToBdrvValueConverter.opcValueToSpMsrValueConverter(sensor.getTag(), value, sensor.getId());
+        var bdrvValue =
+                OpcValueToBdrvValueConverter.opcValueToSpMsrValueConverter(sensor.getTag(), value, sensor.getId());
         if (bdrvValue == null) {
             log.warn("Converted value from OPC UA with item_id: " + sensor.getTag() + " is null");
             return;
         }
-        if (lastValues.containsKey(sensor.getTag()) && Objects.equals(lastValues.get(sensor.getTag()), bdrvValue.hashCode())) {
+        int valueHash = bdrvValue.getPMsrValue().hashCode();
+        if (lastValues.containsKey(sensor.getTag()) &&
+                Objects.equals(lastValues.get(sensor.getTag()), valueHash)) {
             log.info("Value from OPC UA with item_id: " + sensor.getTag() + " was skipped");
             return;
         }
-        lastValuesHashCodeRepository.save(new LastValuesHashCodeRepository.LastValuesHashCode(sensor.getTag(), bdrvValue.hashCode()));
+        lastValuesHashCodeRepository.save(new LastValuesHashCodeRepository.LastValuesHashCode(sensor.getTag(), valueHash));
         spMsrValueRepository.save(bdrvValue);
         log.info("Value from OPC UA with item_id: " + sensor.getTag() + " was saved");
 
@@ -115,16 +127,20 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
     private void readStatusSet(InputConfig.EventStatus status) {
         OpcValue value = readValueByTag(status.getTag());
 
-        var bdrvValue = OpcValueToBdrvValueConverter.opcValueToSpMsnStatusSetValueConverter(status.getTag(), value, status.getUuId());
+        var bdrvValue =
+                OpcValueToBdrvValueConverter.opcValueToSpMsnStatusSetValueConverter(status.getTag(), value,
+                        status.getUuId());
         if (bdrvValue == null) {
             log.warn("Converted value from OPC UA with item_id: " + status.getTag() + " is null");
             return;
         }
-        if (lastValues.containsKey(status.getTag()) && Objects.equals(lastValues.get(status.getTag()), bdrvValue.hashCode())) {
+        int valueHash = bdrvValue.getPMnsId().hashCode();
+        if (lastValues.containsKey(status.getTag()) && Objects.equals(lastValues.get(status.getTag()), valueHash)) {
             log.info("Value from OPC UA with item_id: " + status.getTag() + " was skipped");
             return;
         }
-        lastValuesHashCodeRepository.save(new LastValuesHashCodeRepository.LastValuesHashCode(status.getTag(), bdrvValue.hashCode()));
+        lastValuesHashCodeRepository.save(new LastValuesHashCodeRepository.LastValuesHashCode(status.getTag(),
+                valueHash));
         spMsnStatusSetValueRepository.save(bdrvValue);
         log.info("Value from OPC UA with item_id: " + status.getTag() + " was saved");
     }
@@ -138,16 +154,22 @@ public class OpcReaderSchedulerJob implements ScheduledJob {
             OpcValue valueTag2 = readValueByTag(transaction.getTag2());
             OpcValue valueTag3 = readValueByTag(transaction.getTag3());
             OpcValue valueTag4 = readValueByTag(transaction.getTag4());
-            var bdrvValue = OpcValueToBdrvValueConverter.opcValueToSpTransactionValueConverter(transaction.getTagStart(), valueStart, valueTag1, valueTag2, valueTag3, valueTag4);
+            var bdrvValue =
+                    OpcValueToBdrvValueConverter.opcValueToSpTransactionValueConverter(transaction.getTagStart(),
+                            valueStart, valueTag1, valueTag2, valueTag3, valueTag4);
+
             if (bdrvValue == null) {
                 log.warn("Converted value from OPC UA with item_id: " + transaction.getTagStart() + " is null");
                 return;
             }
-            if (lastValues.containsKey(transaction.getTagStart()) && Objects.equals(lastValues.get(transaction.getTagStart()), bdrvValue.hashCode())) {
+            //TODO
+            int valueHash = bdrvValue.getPInfoType().hashCode();
+            if (lastValues.containsKey(transaction.getTagStart()) &&
+                    Objects.equals(lastValues.get(transaction.getTagStart()), valueHash)) {
                 log.info("Value from OPC UA with item_id: " + transaction.getTagStart() + " was skipped");
                 return;
             }
-            lastValuesHashCodeRepository.save(new LastValuesHashCodeRepository.LastValuesHashCode(transaction.getTagStart(), bdrvValue.hashCode()));
+            lastValuesHashCodeRepository.save(new LastValuesHashCodeRepository.LastValuesHashCode(transaction.getTagStart(), valueHash));
             spTransactionValueRepository.save(bdrvValue);
             log.info("Value from OPC UA with item_id: " + transaction.getTagStart() + " was saved");
         }

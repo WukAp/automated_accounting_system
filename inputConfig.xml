@@ -14,7 +14,7 @@
                tag_3="BdrvTransact_Route6_1_Data3"
                tag_4="BdrvTransact_Route6_1_Data4"/>
 
-        <event type="status" UU_id="101" tag="BdrvStatusSet_P1_Data"/>
+        <event type="status" UU_id="1" tag="//ObjectRoot/ASUTP/UU_Data/UzelUcheta"/>
     </events>
     <settings>
         <ffc_id>23</ffc_id>

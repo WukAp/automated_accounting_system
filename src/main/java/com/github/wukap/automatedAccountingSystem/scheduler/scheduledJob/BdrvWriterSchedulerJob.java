@@ -32,7 +32,7 @@ public abstract class BdrvWriterSchedulerJob<R extends JpaRepository<T, String>,
                 return;
             }
             for (T value : valueRepository.findAll()) {
-                log.info(value.toString() + " is going to be written");
+                log.debug(value.toString() + " is going to be written");
                 boolean result = false;
                 try {
                     result = bdrvDriver.writeValue( value);
@@ -58,7 +58,7 @@ public abstract class BdrvWriterSchedulerJob<R extends JpaRepository<T, String>,
 
     protected boolean isRepositoryEmpty() {
         if (valueRepository.count() == 0) {
-            log.info("There is no values to write from " + this.getClass().getSimpleName());
+            log.debug("There is no values to write from " + this.getClass().getSimpleName());
             return true;
         }
         return false;

@@ -36,7 +36,7 @@ public class OpcValueToBdrvValueConverter {
     public static SpMsnStatusSetValue opcValueToSpMsnStatusSetValueConverter(String tag, OpcValue opcValue, String uuId) {
         if (opcValue == null) return null;
         String formattedSourceTime = instantToFormattedStringConverter(opcValue.getSourceTime());
-        return new SpMsnStatusSetValue(uuId, opcValue.getValue().toString(), formattedSourceTime, tag);
+        return new SpMsnStatusSetValue(uuId, String.valueOf(opcValue.getValue()), formattedSourceTime, tag);
     }
 
     public static SpTransactionValue opcValueToSpTransactionValueConverter(String tag, OpcValue valueStart, OpcValue valueTag1, OpcValue valueTag2, OpcValue valueTag3, OpcValue valueTag4) {
